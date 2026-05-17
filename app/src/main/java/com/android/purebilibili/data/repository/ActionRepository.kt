@@ -3,6 +3,7 @@ package com.android.purebilibili.data.repository
 import com.android.purebilibili.core.network.NetworkModule
 import com.android.purebilibili.core.refresh.WatchLaterRefreshBus
 import com.android.purebilibili.core.store.TokenManager
+import com.android.purebilibili.data.model.response.FollowingUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -48,6 +49,7 @@ object ActionRepository {
     private val _followStateChanges = MutableSharedFlow<FollowStateChange>(extraBufferCapacity = 32)
     val followStateChanges = _followStateChanges.asSharedFlow()
     private const val SPECIAL_FOLLOW_TAG_ID = -10L
+    private const val ALL_FOLLOW_TAG_ID = -20L
     private const val FOLLOW_GROUP_BATCH_SIZE = 20
     private const val FOLLOW_GROUP_MAX_RETRIES = 3
     private const val FOLLOW_GROUP_REQUEST_INTERVAL_MS = 220L
@@ -458,6 +460,43 @@ object ActionRepository {
                 }
 
                 Result.success(result)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun getAllFollowGroupUsers(): Result<List<FollowingUser>> {
+        return getFollowGroupUsers(tagId = ALL_FOLLOW_TAG_ID)
+    }
+
+    private suspend fun getFollowGroupUsers(tagId: Long): Result<List<FollowingUser>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val result = linkedMapOf<Long, FollowingUser>()
+                var page = 1
+
+                while (page <= FOLLOW_GROUP_TAG_MEMBERS_MAX_PAGES) {
+                    val response = api.getRelationTagFollowingUsers(
+                        tagId = tagId,
+                        pageSize = FOLLOW_GROUP_TAG_MEMBERS_PAGE_SIZE,
+                        page = page
+                    )
+                    if (response.code != 0) {
+                        return@withContext Result.failure(
+                            Exception(response.message.ifEmpty { "获取分组成员失败: ${response.code}" })
+                        )
+                    }
+
+                    val users = response.data.filter { it.mid > 0L }
+                    users.forEach { user -> result[user.mid] = user }
+
+                    if (users.size < FOLLOW_GROUP_TAG_MEMBERS_PAGE_SIZE) break
+                    page += 1
+                    delay(FOLLOW_GROUP_REQUEST_INTERVAL_MS)
+                }
+
+                Result.success(result.values.toList())
             } catch (e: Exception) {
                 Result.failure(e)
             }

@@ -265,9 +265,15 @@ class FollowingListViewModel : ViewModel() {
                 val pageSize = 50
                 // 计算需要加载的总页数
                 val totalPages = (total + pageSize - 1) / pageSize
+                val startPage = (currentUsers.size / pageSize + 1).coerceAtLeast(2)
+
+                (_uiState.value as? FollowingListUiState.Success)?.let { current ->
+                    if (current.users.size < total) {
+                        _uiState.value = current.copy(isLoadingMore = true)
+                    }
+                }
                 
-                // 从第2页开始循环加载
-                for (page in 2..totalPages) {
+                for (page in startPage..totalPages) {
                     if (mid != currentMid) break // 如果用户切换了查看的 UP 主，停止加载
                     
                     // 延迟一点时间，避免请求过于频繁触发风控
@@ -278,31 +284,66 @@ class FollowingListViewModel : ViewModel() {
                         val newUsers = response.data.list.orEmpty()
                             .filterNot { removedUserMids.contains(it.mid) }
                         if (newUsers.isNotEmpty()) {
-                            currentUsers.addAll(newUsers)
-                            currentUsers = currentUsers
-                                .distinctBy { it.mid }
-                                .filterNot { removedUserMids.contains(it.mid) }
-                                .toMutableList()
+                            currentUsers = mergeFollowingUsersDistinct(
+                                currentUsers = currentUsers,
+                                incomingUsers = newUsers,
+                                removedUserMids = removedUserMids
+                            ).toMutableList()
                             
                             // 更新 UI 状态
                             _uiState.value = FollowingListUiState.Success(
                                 users = currentUsers.toList(), // Create new list to trigger recomposition
                                 total = total,
-                                hasMore = page < totalPages,
+                                hasMore = isFollowingListIncomplete(currentUsers.size, total),
                                 isLoadingMore = true // 显示正在后台加载
                             )
                             persistFollowingCache(mid = mid, total = total, users = currentUsers)
                             refreshFollowGroupMetadata(currentUsers)
+                        } else {
+                            break
                         }
                     } else {
                         break // 出错停止加载
+                    }
+                }
+
+                if (mid == currentMid && isFollowingListIncomplete(currentUsers.size, total)) {
+                    ActionRepository.getAllFollowGroupUsers().onSuccess { allUsers ->
+                        val mergedUsers = mergeFollowingUsersDistinct(
+                            currentUsers = currentUsers,
+                            incomingUsers = allUsers,
+                            removedUserMids = removedUserMids
+                        )
+                        if (mergedUsers.size > currentUsers.size) {
+                            currentUsers = mergedUsers.toMutableList()
+                            _uiState.value = FollowingListUiState.Success(
+                                users = currentUsers.toList(),
+                                total = total.coerceAtLeast(currentUsers.size),
+                                hasMore = isFollowingListIncomplete(currentUsers.size, total),
+                                isLoadingMore = true
+                            )
+                            persistFollowingCache(
+                                mid = mid,
+                                total = total.coerceAtLeast(currentUsers.size),
+                                users = currentUsers
+                            )
+                            refreshFollowGroupMetadata(currentUsers)
+                        }
+                    }.onFailure { error ->
+                        com.android.purebilibili.core.util.Logger.w(
+                            "FollowingListVM",
+                            "fallback all follow group failed: ${error.message}"
+                        )
                     }
                 }
                 
                 // 加载完成
                 val current = _uiState.value
                 if (current is FollowingListUiState.Success) {
-                    _uiState.value = current.copy(isLoadingMore = false, hasMore = false)
+                    _uiState.value = current.copy(
+                        isLoadingMore = false,
+                        hasMore = isFollowingListIncomplete(current.users.size, current.total)
+                    )
                 }
             } catch (e: Exception) {
                 // 后台加载失败暂不干扰主流程
@@ -316,8 +357,11 @@ class FollowingListViewModel : ViewModel() {
         }
     }
     
-    // 手动加载更多 (已废弃，保留空实现兼容接口或删除)
-    fun loadMore() { }
+    fun loadMore() {
+        val current = _uiState.value as? FollowingListUiState.Success ?: return
+        if (current.isLoadingMore || !current.hasMore || currentMid <= 0L) return
+        loadAllRemainingPages(currentMid, current.total, current.users)
+    }
 
     suspend fun batchUnfollow(targetUsers: List<FollowingUser>): BatchUnfollowResult {
         if (targetUsers.isEmpty()) {

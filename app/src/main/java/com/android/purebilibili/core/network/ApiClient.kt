@@ -794,6 +794,14 @@ interface BilibiliApi {
         @Query("ps") pageSize: Int = 100,
         @Query("pn") page: Int = 1
     ): com.android.purebilibili.data.model.response.RelationTagMembersResponse
+
+    @GET("x/relation/tag")
+    suspend fun getRelationTagFollowingUsers(
+        @Query("tagid") tagId: Long,
+        @Query("order_type") orderType: String = "",
+        @Query("ps") pageSize: Int = 100,
+        @Query("pn") page: Int = 1
+    ): com.android.purebilibili.data.model.response.RelationTagFollowingsResponse
     
     //  [新增] 查询视频是否已收藏
     @GET("x/v2/fav/video/favoured")
@@ -889,7 +897,7 @@ interface BilibiliApi {
         @Query("vmid") vmid: Long,        // 用户 mid
         @Query("pn") pn: Int = 1,         // 页码
         @Query("ps") ps: Int = 50,        // 每页数量（最大 50）
-        @Query("order") order: String = "desc"  // 排序
+        @Query("order_type") orderType: String = ""  // 按关注顺序
     ): FollowingsResponse
     
     //  [官方适配] 获取视频在线观看人数

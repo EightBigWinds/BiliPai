@@ -160,6 +160,14 @@ data class FollowingsData(
 )
 
 @Serializable
+data class RelationTagFollowingsResponse(
+    val code: Int = 0,
+    val message: String = "",
+    val ttl: Int = 0,
+    val data: List<FollowingUser> = emptyList()
+)
+
+@Serializable
 data class FollowingUser(
     val mid: Long = 0,
     val uname: String = "",
