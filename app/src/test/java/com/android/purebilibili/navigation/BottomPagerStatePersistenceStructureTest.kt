@@ -2,6 +2,7 @@ package com.android.purebilibili.navigation
 
 import java.io.File
 import kotlin.test.Test
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class BottomPagerStatePersistenceStructureTest {
@@ -15,6 +16,17 @@ class BottomPagerStatePersistenceStructureTest {
         assertTrue(source.contains("key = resolveBottomPagerSaveableStateKey(pageItem)"))
         assertTrue(source.contains("key = { page ->"))
         assertTrue(source.contains("resolveBottomPagerItemForPage(page, visibleBottomBarItems)"))
+    }
+
+    @Test
+    fun `bottom pager disables outer content size animation while navigating`() {
+        val source = loadSource("app/src/main/java/com/android/purebilibili/navigation/AppNavigation.kt")
+
+        assertTrue(source.contains("val contentContainerModifier = if (bottomPagerRenderBudget.isTransitionRunning)"))
+        assertTrue(source.contains("Modifier.fillMaxSize()"))
+        assertTrue(source.contains("Modifier.fillMaxSize().animateContentSize()"))
+        assertTrue(source.contains("modifier = contentContainerModifier"))
+        assertFalse(source.contains("modifier = Modifier\n                        .animateContentSize()"))
     }
 
     private fun loadSource(path: String): String {

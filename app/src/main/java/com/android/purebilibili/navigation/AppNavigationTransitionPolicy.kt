@@ -34,7 +34,6 @@ internal enum class VideoPopExitAction {
 
 internal enum class VideoPushEnterAction {
     NO_OP,
-    HERO_EXPAND_FADE,
     SOFT_FADE,
     LEFT_SLIDE,
     RIGHT_SLIDE
@@ -67,20 +66,13 @@ internal fun resolveVideoPushEnterAction(
         return resolveVideoPushEnterActionForCardSource(lastClickedCardCenterX)
     }
 
-    val backRouteMotionMode = resolveBackRouteMotionMode(
-        predictiveBackAnimationEnabled = predictiveBackAnimationEnabled,
-        cardTransitionEnabled = cardTransitionEnabled
-    )
-
-    if (shouldUseClassicBackRouteMotion(backRouteMotionMode)) {
-        return if (sharedTransitionReady) {
-            VideoPushEnterAction.HERO_EXPAND_FADE
-        } else {
-            VideoPushEnterAction.SOFT_FADE
-        }
+    if (sharedTransitionReady) {
+        // 共享元素就绪时，路由层不再叠加 scale/slide，让 sharedBounds 成为唯一主动画。
+        return VideoPushEnterAction.NO_OP
     }
 
-    return VideoPushEnterAction.LEFT_SLIDE
+    // predictiveBackAnimationEnabled 保留在签名中，前进进入详情时不反向关闭共享元素策略。
+    return VideoPushEnterAction.SOFT_FADE
 }
 
 internal fun resolveVideoCardReturnEnterAction(

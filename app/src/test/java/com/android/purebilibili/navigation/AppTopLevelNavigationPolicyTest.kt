@@ -397,6 +397,7 @@ class AppTopLevelNavigationPolicyTest {
             ScreenRoutes.Home.route,
             ScreenRoutes.Dynamic.route,
             ScreenRoutes.History.route,
+            ScreenRoutes.Favorite.route,
             ScreenRoutes.Profile.route
         )
 
@@ -411,6 +412,13 @@ class AppTopLevelNavigationPolicyTest {
             shouldUseInstantBottomTabTransition(
                 fromRoute = ScreenRoutes.Profile.route,
                 toRoute = ScreenRoutes.Dynamic.route,
+                visibleBottomBarRoutes = visibleRoutes
+            )
+        )
+        assertTrue(
+            shouldUseInstantBottomTabTransition(
+                fromRoute = ScreenRoutes.Favorite.route,
+                toRoute = ScreenRoutes.Profile.route,
                 visibleBottomBarRoutes = visibleRoutes
             )
         )

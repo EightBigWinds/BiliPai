@@ -13,7 +13,6 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
@@ -29,7 +28,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.material3.MaterialTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -891,6 +889,11 @@ fun AppNavigation(
                     AppSystemBackAction.FINISH_ACTIVITY -> context.findActivity()?.finish()
                 }
             }
+            val contentContainerModifier = if (bottomPagerRenderBudget.isTransitionRunning) {
+                Modifier.fillMaxSize()
+            } else {
+                Modifier.fillMaxSize().animateContentSize()
+            }
             Row(modifier = Modifier.fillMaxSize()) {
                 if (windowSizeClass.shouldUseSideNavigation && isBottomBarDestination) {
                     AnimatedVisibility(
@@ -923,8 +926,7 @@ fun AppNavigation(
                     }
                 }
                 Box(
-                    modifier = Modifier
-                        .animateContentSize()
+                    modifier = contentContainerModifier
                 ) {
                 // ===== 内容层 (hazeSource) =====
                 // 这个 Box 包裹全局壁纸和所有 NavHost 内容，作为底栏模糊/折射的源
@@ -1523,34 +1525,6 @@ fun AppNavigation(
                     )
                 ) {
                     VideoPushEnterAction.NO_OP -> EnterTransition.None
-                    VideoPushEnterAction.HERO_EXPAND_FADE -> {
-                        val cardCenter = CardPositionManager.lastClickedCardCenter
-                        val transformOrigin = TransformOrigin(
-                            pivotFractionX = (cardCenter?.x ?: 0.5f).coerceIn(0f, 1f),
-                            pivotFractionY = (cardCenter?.y ?: 0.35f).coerceIn(0f, 1f)
-                        )
-                        // 强化前进进入感：明显一点的放大+淡入，并叠加轻微位移
-                        (scaleIn(
-                            animationSpec = tween(
-                                durationMillis = navMotionSpec.slowFadeDurationMillis,
-                                easing = IOS_RETURN_EASING
-                            ),
-                            initialScale = 0.86f,
-                            transformOrigin = transformOrigin
-                        ) + fadeIn(
-                            animationSpec = tween(
-                                durationMillis = navMotionSpec.slowFadeDurationMillis,
-                                easing = IOS_RETURN_EASING
-                            ),
-                            initialAlpha = 0.35f
-                        ) + slideInHorizontally(
-                            animationSpec = tween(
-                                durationMillis = navMotionSpec.slowFadeDurationMillis,
-                                easing = IOS_RETURN_EASING
-                            ),
-                            initialOffsetX = { fullWidth -> (fullWidth * 0.08f).toInt() }
-                        ))
-                    }
                     VideoPushEnterAction.SOFT_FADE -> {
                         fadeIn(
                             animationSpec = tween(
