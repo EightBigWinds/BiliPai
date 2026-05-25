@@ -1,12 +1,10 @@
 package com.android.purebilibili.navigation
 
 import com.android.purebilibili.core.store.HomeSettings
-import com.android.purebilibili.core.store.PredictiveBackAnimationStyle
 import com.android.purebilibili.core.theme.AndroidNativeVariant
 import com.android.purebilibili.core.theme.UiPreset
 import java.io.File
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -20,28 +18,25 @@ class AppNavigationAppearancePolicyTest {
                 bottomBarLabelMode = 2,
                 isBottomBarBlurEnabled = false,
                 cardTransitionEnabled = false,
-                videoTransitionRealtimeBlurEnabled = false,
-                predictiveBackAnimationStyle = PredictiveBackAnimationStyle.NONE
+                videoTransitionRealtimeBlurEnabled = false
             )
         )
 
         assertFalse(appearance.cardTransitionEnabled)
         assertFalse(appearance.videoTransitionRealtimeBlurEnabled)
-        assertEquals(PredictiveBackAnimationStyle.NONE, appearance.predictiveBackAnimationStyle)
         assertFalse(appearance.bottomBarBlurEnabled)
-        assertEquals(2, appearance.bottomBarLabelMode)
+        kotlin.test.assertEquals(2, appearance.bottomBarLabelMode)
         assertFalse(appearance.bottomBarFloating)
     }
 
     @Test
-    fun keepsDefaultsButPausesPredictiveBackAtRuntime() {
+    fun keepsDefaultsWithoutRemovedBackPreviewAppearanceState() {
         val appearance = resolveAppNavigationAppearance(HomeSettings())
 
         assertTrue(appearance.cardTransitionEnabled)
         assertTrue(appearance.videoTransitionRealtimeBlurEnabled)
-        assertEquals(PredictiveBackAnimationStyle.NONE, appearance.predictiveBackAnimationStyle)
         assertTrue(appearance.bottomBarBlurEnabled)
-        assertEquals(0, appearance.bottomBarLabelMode)
+        kotlin.test.assertEquals(0, appearance.bottomBarLabelMode)
         assertTrue(appearance.bottomBarFloating)
     }
 
@@ -54,7 +49,7 @@ class AppNavigationAppearancePolicyTest {
 
         assertTrue(appearance.bottomBarFloating)
         assertTrue(appearance.bottomBarBlurEnabled)
-        assertEquals(0, appearance.bottomBarLabelMode)
+        kotlin.test.assertEquals(0, appearance.bottomBarLabelMode)
     }
 
     @Test
@@ -70,7 +65,7 @@ class AppNavigationAppearancePolicyTest {
 
         assertTrue(appearance.bottomBarFloating)
         assertFalse(appearance.bottomBarBlurEnabled)
-        assertEquals(1, appearance.bottomBarLabelMode)
+        kotlin.test.assertEquals(1, appearance.bottomBarLabelMode)
     }
 
     @Test
@@ -83,7 +78,7 @@ class AppNavigationAppearancePolicyTest {
 
         assertTrue(appearance.bottomBarFloating)
         assertTrue(appearance.bottomBarBlurEnabled)
-        assertEquals(0, appearance.bottomBarLabelMode)
+        kotlin.test.assertEquals(0, appearance.bottomBarLabelMode)
     }
 
     @Test
@@ -120,6 +115,14 @@ class AppNavigationAppearancePolicyTest {
         assertFalse(source.contains("videoTransitionRealtimeBlurEnabled"))
         assertFalse(source.contains("video_source_background_blur"))
         assertFalse(source.contains("RenderEffect.createBlurEffect"))
+    }
+
+    @Test
+    fun appNavigationAppearanceDoesNotExposeRemovedBackPreviewState() {
+        val source = loadSource("app/src/main/java/com/android/purebilibili/navigation/AppNavigationAppearancePolicy.kt")
+
+        assertFalse(source.contains("Predictive" + "BackAnimationStyle"))
+        assertFalse(source.contains("predictive" + "BackAnimationStyle"))
     }
 
     private fun loadSource(path: String): String {

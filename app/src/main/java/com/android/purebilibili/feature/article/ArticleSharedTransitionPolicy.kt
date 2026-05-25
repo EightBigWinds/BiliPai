@@ -29,7 +29,6 @@ internal fun resolveArticleSharedTransitionKey(
 
 internal fun shouldUseArticleNoOpRouteTransition(
     cardTransitionEnabled: Boolean,
-    predictiveBackAnimationEnabled: Boolean,
     sharedTransitionReady: Boolean
 ): Boolean {
     return cardTransitionEnabled &&

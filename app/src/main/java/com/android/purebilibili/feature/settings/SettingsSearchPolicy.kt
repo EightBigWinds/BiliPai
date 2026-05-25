@@ -140,9 +140,6 @@ private val SETTINGS_SEARCH_INDEX: List<SettingsSearchEntry> = listOf(
             "动画与效果",
             "过渡动画",
             "进场动画",
-            "预测性返回",
-            "预测性返回预览",
-            "返回预览",
             "触感反馈",
             "震动",
             "haptic",
@@ -521,9 +518,9 @@ private val SETTINGS_SEARCH_INDEX: List<SettingsSearchEntry> = listOf(
     SettingsSearchEntry(
         target = SettingsSearchTarget.ANIMATION,
         title = "动画与效果 / 触感反馈",
-        subtitle = "动画、预测性返回预览、触感反馈、底栏搜索入口",
+        subtitle = "动画、触感反馈、底栏搜索入口",
         section = "外观设置",
-        aliases = listOf("动画与效果", "预测性返回", "预测性返回预览", "返回预览", "返回手势预览", "触感反馈", "动画设置", "应用图标", "底栏搜索", "底栏搜索入口", "搜索入口", "悬浮搜索"),
+        aliases = listOf("动画与效果", "触感反馈", "动画设置", "应用图标", "底栏搜索", "底栏搜索入口", "搜索入口", "悬浮搜索"),
         focusId = SettingsSearchFocusIds.ANIMATION_VISUAL_EFFECTS
     ),
     SettingsSearchEntry(

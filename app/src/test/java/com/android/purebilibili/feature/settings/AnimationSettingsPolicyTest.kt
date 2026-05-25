@@ -1,6 +1,5 @@
 package com.android.purebilibili.feature.settings
 
-import com.android.purebilibili.core.store.PredictiveBackAnimationStyle
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -9,47 +8,6 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class AnimationSettingsPolicyTest {
-
-    @Test
-    fun predictiveBackEntry_isDisabledWhileFeaturePaused() {
-        val aosp = resolvePredictiveBackToggleUiState(
-            predictiveBackAnimationStyle = PredictiveBackAnimationStyle.AOSP
-        )
-        assertFalse(aosp.enabled)
-        assertEquals(PredictiveBackAnimationStyle.NONE, aosp.selectedStyle)
-        assertEquals(PREDICTIVE_BACK_ANIMATION_TITLE, aosp.title)
-        assertEquals("预测性返回动画", aosp.title)
-        assertEquals("暂时关闭：功能不完善，已避免和现有返回动画冲突", aosp.subtitle)
-
-        val none = resolvePredictiveBackToggleUiState(
-            predictiveBackAnimationStyle = PredictiveBackAnimationStyle.NONE
-        )
-        assertFalse(none.enabled)
-        assertEquals(PredictiveBackAnimationStyle.NONE, none.selectedStyle)
-        assertEquals("暂时关闭：功能不完善，已避免和现有返回动画冲突", none.subtitle)
-    }
-
-    @Test
-    fun predictiveBackEntry_ignoresPersistedStyleWhileFeaturePaused() {
-        val state = resolvePredictiveBackToggleUiState(
-            predictiveBackAnimationStyle = PredictiveBackAnimationStyle.AOSP
-        )
-
-        assertFalse(state.enabled)
-        assertEquals(PredictiveBackAnimationStyle.NONE, state.selectedStyle)
-        assertEquals(PREDICTIVE_BACK_ANIMATION_TITLE, state.title)
-        assertEquals("暂时关闭：功能不完善，已避免和现有返回动画冲突", state.subtitle)
-    }
-
-    @Test
-    fun predictiveBackStyles_keepPersistedValuesForFutureRollback() {
-        assertEquals(
-            listOf("无", "AOSP", "Miuix", "缩放", "经典"),
-            PredictiveBackAnimationStyle.entries.map { it.displayName }
-        )
-        assertEquals(PredictiveBackAnimationStyle.AOSP, PredictiveBackAnimationStyle.Default)
-        assertFalse(PredictiveBackAnimationStyle.AOSP.usesPredictiveBack)
-    }
 
     @Test
     fun liquidGlassPreviewUiState_usesContinuousCopy() {
@@ -100,6 +58,22 @@ class AnimationSettingsPolicyTest {
         assertFalse(bottomBarSource.contains("底栏液态玻璃预设"))
         assertFalse(bottomBarSource.contains("BottomBarLiquidGlassPreset.entries"))
         assertFalse(bottomBarSource.contains("底栏跟随高光"))
+    }
+
+    @Test
+    fun removedBackPreviewEntry_isRemovedFromAnimationSettings() {
+        val animationSource = loadSource(
+            "app/src/main/java/com/android/purebilibili/feature/settings/screen/AnimationSettingsScreen.kt"
+        )
+        val policySource = loadSource(
+            "app/src/main/java/com/android/purebilibili/feature/settings/AnimationSettingsPolicy.kt"
+        )
+
+        assertFalse(animationSource.contains("预测性返回动画"))
+        assertFalse(animationSource.contains("Predictive" + "BackAnimationDialog"))
+        assertFalse(animationSource.contains("SettingsIconRole.PREDICTIVE" + "_BACK"))
+        assertFalse(policySource.contains("Predictive" + "BackToggleUiState"))
+        assertFalse(policySource.contains("resolvePredictive" + "BackToggleUiState"))
     }
 
     private fun loadSource(path: String): String {

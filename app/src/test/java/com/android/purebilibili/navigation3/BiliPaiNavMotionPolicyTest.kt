@@ -1,6 +1,5 @@
 package com.android.purebilibili.navigation3
 
-import com.android.purebilibili.core.store.PredictiveBackAnimationStyle
 import com.android.purebilibili.navigation.AppSystemBackAction
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -12,103 +11,19 @@ import kotlin.test.assertTrue
 class BiliPaiNavMotionPolicyTest {
 
     @Test
-    fun predictiveStylesWithCards_useClassicCardModeWhileFeaturePaused() {
-        assertEquals(
-            setOf(BiliPaiNavMotionMode.CLASSIC_CARD),
-            PredictiveBackAnimationStyle.entries
-                .filterNot { it == PredictiveBackAnimationStyle.NONE }
-                .map {
-                    resolveBiliPaiNavMotionMode(
-                        predictiveBackAnimationStyle = it,
-                        cardTransitionEnabled = true
-                    )
-                }
-                .toSet()
-        )
-    }
-
-    @Test
-    fun predictiveStylesWithoutCards_useCardDisabledModeWhileFeaturePaused() {
-        assertEquals(
-            setOf(BiliPaiNavMotionMode.CARD_DISABLED),
-            PredictiveBackAnimationStyle.entries
-                .filterNot { it == PredictiveBackAnimationStyle.NONE }
-                .map {
-                    resolveBiliPaiNavMotionMode(
-                        predictiveBackAnimationStyle = it,
-                        cardTransitionEnabled = false
-                    )
-                }
-                .toSet()
-        )
-    }
-
-    @Test
-    fun predictiveStyles_doNotExposeNavDisplayOwnerWhileFeaturePaused() {
-        val decision = resolveBiliPaiBackGestureDecision(
-            predictiveBackAnimationStyle = PredictiveBackAnimationStyle.AOSP,
-            cardTransitionEnabled = true,
-            systemBackAction = AppSystemBackAction.NAVIGATE_UP,
-            currentKey = BiliPaiNavKey.VideoDetail("BV2", sourceRoute = "home"),
-            previousKey = BiliPaiNavKey.Home,
-            sourceMetadata = BiliPaiNavSourceMetadata(
-                sourceKey = "home:BV1",
-                sourceRoute = "home",
-                clickedBoundsRecorded = true,
-                cardFullyVisible = true
-            )
-        )
-
-        assertEquals(BiliPaiBackGestureOwner.APP_CLASSIC, decision.owner)
-        assertEquals(BiliPaiNavRouteTransition.CLASSIC_CARD, decision.routeTransition)
-        assertTrue(decision.interceptSystemBack)
-    }
-
-    @Test
-    fun predictiveDisabledWithCards_usesClassicCardMode() {
+    fun cardTransitionEnabled_usesClassicCardMode() {
         assertEquals(
             BiliPaiNavMotionMode.CLASSIC_CARD,
-            resolveBiliPaiNavMotionMode(
-                predictiveBackAnimationStyle = PredictiveBackAnimationStyle.NONE,
-                cardTransitionEnabled = true
-            )
+            resolveBiliPaiNavMotionMode(cardTransitionEnabled = true)
         )
     }
 
     @Test
-    fun installerXStylesWithCards_useClassicCardModeWhileFeaturePaused() {
-        listOf(
-            PredictiveBackAnimationStyle.AOSP,
-            PredictiveBackAnimationStyle.MIUIX,
-            PredictiveBackAnimationStyle.SCALE,
-            PredictiveBackAnimationStyle.CLASSIC
-        ).forEach { style ->
-            assertEquals(
-                BiliPaiNavMotionMode.CLASSIC_CARD,
-                resolveBiliPaiNavMotionMode(
-                    predictiveBackAnimationStyle = style,
-                    cardTransitionEnabled = true
-                )
-            )
-        }
-    }
-
-    @Test
-    fun installerXPredictiveStyles_followCardTransitionSwitchWhileFeaturePaused() {
-        listOf(
-            PredictiveBackAnimationStyle.AOSP,
-            PredictiveBackAnimationStyle.MIUIX,
-            PredictiveBackAnimationStyle.SCALE,
-            PredictiveBackAnimationStyle.CLASSIC
-        ).forEach { style ->
-            assertEquals(
-                BiliPaiNavMotionMode.CARD_DISABLED,
-                resolveBiliPaiNavMotionMode(
-                    predictiveBackAnimationStyle = style,
-                    cardTransitionEnabled = false
-                )
-            )
-        }
+    fun cardTransitionDisabled_usesCardDisabledMode() {
+        assertEquals(
+            BiliPaiNavMotionMode.CARD_DISABLED,
+            resolveBiliPaiNavMotionMode(cardTransitionEnabled = false)
+        )
     }
 
     @Test
@@ -116,7 +31,6 @@ class BiliPaiNavMotionPolicyTest {
         val decision = resolveBiliPaiNavMotionDecision(
             fromKey = BiliPaiNavKey.VideoDetail("BV1"),
             toKey = BiliPaiNavKey.Home,
-            predictiveBackAnimationStyle = PredictiveBackAnimationStyle.AOSP,
             cardTransitionEnabled = true,
             sharedTransitionReady = true
         )
@@ -130,7 +44,6 @@ class BiliPaiNavMotionPolicyTest {
         val decision = resolveBiliPaiNavMotionDecision(
             fromKey = BiliPaiNavKey.VideoDetail("BV1"),
             toKey = BiliPaiNavKey.Home,
-            predictiveBackAnimationStyle = PredictiveBackAnimationStyle.NONE,
             cardTransitionEnabled = false,
             sharedTransitionReady = true
         )
@@ -141,9 +54,8 @@ class BiliPaiNavMotionPolicyTest {
     }
 
     @Test
-    fun predictiveEnabledSharedVideoReturnUsesClassicAppBack() {
+    fun videoSharedReturnUsesClassicAppBack() {
         val decision = resolveBiliPaiBackGestureDecision(
-            predictiveBackAnimationStyle = PredictiveBackAnimationStyle.AOSP,
             cardTransitionEnabled = true,
             systemBackAction = AppSystemBackAction.NAVIGATE_UP,
             currentKey = BiliPaiNavKey.VideoDetail("BV1", sourceRoute = "home"),
@@ -156,15 +68,13 @@ class BiliPaiNavMotionPolicyTest {
             )
         )
 
-        assertEquals(BiliPaiBackGestureOwner.APP_CLASSIC, decision.owner)
         assertEquals(BiliPaiNavRouteTransition.NO_OP_SHARED_ELEMENT, decision.routeTransition)
         assertTrue(decision.interceptSystemBack)
     }
 
     @Test
-    fun predictiveEnabledStaleVideoReturnUsesClassicAppBackWhileFeaturePaused() {
+    fun staleVideoReturnUsesClassicCardRouteLayer() {
         val decision = resolveBiliPaiBackGestureDecision(
-            predictiveBackAnimationStyle = PredictiveBackAnimationStyle.AOSP,
             cardTransitionEnabled = true,
             systemBackAction = AppSystemBackAction.NAVIGATE_UP,
             currentKey = BiliPaiNavKey.VideoDetail("BV2", sourceRoute = "home"),
@@ -177,36 +87,13 @@ class BiliPaiNavMotionPolicyTest {
             )
         )
 
-        assertEquals(BiliPaiBackGestureOwner.APP_CLASSIC, decision.owner)
         assertEquals(BiliPaiNavRouteTransition.CLASSIC_CARD, decision.routeTransition)
-        assertTrue(decision.interceptSystemBack)
-    }
-
-    @Test
-    fun predictiveDisabledNavigateUpUsesClassicAppBack() {
-        val decision = resolveBiliPaiBackGestureDecision(
-            predictiveBackAnimationStyle = PredictiveBackAnimationStyle.NONE,
-            cardTransitionEnabled = true,
-            systemBackAction = AppSystemBackAction.NAVIGATE_UP,
-            currentKey = BiliPaiNavKey.VideoDetail("BV1", sourceRoute = "home"),
-            previousKey = BiliPaiNavKey.Home,
-            sourceMetadata = BiliPaiNavSourceMetadata(
-                sourceKey = "home:BV1",
-                sourceRoute = "home",
-                clickedBoundsRecorded = true,
-                cardFullyVisible = true
-            )
-        )
-
-        assertEquals(BiliPaiBackGestureOwner.APP_CLASSIC, decision.owner)
-        assertEquals(BiliPaiNavRouteTransition.NO_OP_SHARED_ELEMENT, decision.routeTransition)
         assertTrue(decision.interceptSystemBack)
     }
 
     @Test
     fun returnToHomeTabAlwaysUsesAppActionBack() {
         val decision = resolveBiliPaiBackGestureDecision(
-            predictiveBackAnimationStyle = PredictiveBackAnimationStyle.AOSP,
             cardTransitionEnabled = true,
             systemBackAction = AppSystemBackAction.RETURN_TO_HOME_TAB,
             currentKey = BiliPaiNavKey.MainHost,
@@ -214,15 +101,13 @@ class BiliPaiNavMotionPolicyTest {
             sourceMetadata = BiliPaiNavSourceMetadata()
         )
 
-        assertEquals(BiliPaiBackGestureOwner.APP_ACTION, decision.owner)
         assertEquals(BiliPaiNavRouteTransition.FALLBACK, decision.routeTransition)
         assertTrue(decision.interceptSystemBack)
     }
 
     @Test
-    fun navDisplayPredictivePop_sharedReadyVideoReturn_keepsRouteLayerNoOp() {
-        val transition = resolveBiliPaiNavDisplayPredictivePopRouteTransition(
-            motionMode = BiliPaiNavMotionMode.PREDICTIVE_NAV_DISPLAY,
+    fun navDisplayPop_sharedReadyVideoReturn_keepsRouteLayerNoOp() {
+        val transition = resolveBiliPaiNavDisplayPopRouteTransition(
             cardTransitionEnabled = true,
             sourceMetadata = BiliPaiNavSourceMetadata(
                 sourceKey = "history:BV1",
@@ -238,9 +123,8 @@ class BiliPaiNavMotionPolicyTest {
     }
 
     @Test
-    fun navDisplayPredictivePop_disabledSharedTransition_usesDirectionalReturnFallback() {
-        val transition = resolveBiliPaiNavDisplayPredictivePopRouteTransition(
-            motionMode = BiliPaiNavMotionMode.PREDICTIVE_NAV_DISPLAY,
+    fun navDisplayPop_disabledSharedTransition_usesDirectionalReturnFallback() {
+        val transition = resolveBiliPaiNavDisplayPopRouteTransition(
             cardTransitionEnabled = false,
             sourceMetadata = BiliPaiNavSourceMetadata(
                 sourceKey = "home:BV1",
@@ -257,63 +141,6 @@ class BiliPaiNavMotionPolicyTest {
     }
 
     @Test
-    fun navDisplayPop_disabledSharedTransition_supportsHistoryAndFavoriteCardSources() {
-        val historyTransition = resolveBiliPaiNavDisplayPredictivePopRouteTransition(
-            motionMode = BiliPaiNavMotionMode.CARD_DISABLED,
-            cardTransitionEnabled = false,
-            sourceMetadata = BiliPaiNavSourceMetadata(
-                sourceKey = "history:BV1",
-                sourceRoute = "history",
-                clickedBoundsRecorded = true,
-                cardFullyVisible = true,
-                cardSourceDirection = BiliPaiNavCardSourceDirection.SOURCE_LEFT
-            ),
-            fromKey = BiliPaiNavKey.VideoDetail("BV1", sourceRoute = "history"),
-            toKey = BiliPaiNavKey.History
-        )
-        val favoriteTransition = resolveBiliPaiNavDisplayPredictivePopRouteTransition(
-            motionMode = BiliPaiNavMotionMode.CARD_DISABLED,
-            cardTransitionEnabled = false,
-            sourceMetadata = BiliPaiNavSourceMetadata(
-                sourceKey = "favorite:BV2",
-                sourceRoute = "favorite",
-                clickedBoundsRecorded = true,
-                cardFullyVisible = true,
-                cardSourceDirection = BiliPaiNavCardSourceDirection.SOURCE_RIGHT
-            ),
-            fromKey = BiliPaiNavKey.VideoDetail("BV2", sourceRoute = "favorite"),
-            toKey = BiliPaiNavKey.Favorite
-        )
-
-        assertEquals(BiliPaiNavRouteTransition.CARD_DISABLED_VIDEO_RETURN_TO_LEFT, historyTransition)
-        assertEquals(BiliPaiNavRouteTransition.CARD_DISABLED_VIDEO_RETURN_TO_RIGHT, favoriteTransition)
-    }
-
-    @Test
-    fun directionalReturnFallbackSuppressesPredictiveDecorator() {
-        assertTrue(
-            shouldSuppressPredictiveBackDecoratorForRouteTransition(
-                BiliPaiNavRouteTransition.NO_OP_SHARED_ELEMENT
-            )
-        )
-        assertTrue(
-            shouldSuppressPredictiveBackDecoratorForRouteTransition(
-                BiliPaiNavRouteTransition.CARD_DISABLED_VIDEO_RETURN_TO_LEFT
-            )
-        )
-        assertTrue(
-            shouldSuppressPredictiveBackDecoratorForRouteTransition(
-                BiliPaiNavRouteTransition.CARD_DISABLED_VIDEO_RETURN_TO_RIGHT
-            )
-        )
-        assertFalse(
-            shouldSuppressPredictiveBackDecoratorForRouteTransition(
-                BiliPaiNavRouteTransition.NAV_DISPLAY_DEFAULT_PREDICTIVE
-            )
-        )
-    }
-
-    @Test
     fun plainPopOverridesOnlySharedOrDirectionalVideoReturnTransitions() {
         assertNotNull(
             resolveBiliPaiNavPopContentTransform(BiliPaiNavRouteTransition.NO_OP_SHARED_ELEMENT)
@@ -327,9 +154,6 @@ class BiliPaiNavMotionPolicyTest {
             resolveBiliPaiNavPopContentTransform(
                 BiliPaiNavRouteTransition.CARD_DISABLED_VIDEO_RETURN_TO_RIGHT
             )
-        )
-        assertNull(
-            resolveBiliPaiNavPopContentTransform(BiliPaiNavRouteTransition.NAV_DISPLAY_DEFAULT_PREDICTIVE)
         )
         assertNull(
             resolveBiliPaiNavPopContentTransform(BiliPaiNavRouteTransition.FALLBACK)
@@ -371,64 +195,10 @@ class BiliPaiNavMotionPolicyTest {
     }
 
     @Test
-    fun entryPop_dynamicDetailReturnWithStaleVideoMetadata_usesFallbackRouteLayer() {
-        val transition = resolveBiliPaiNavEntryPopRouteTransition(
-            defaultTransition = BiliPaiNavRouteTransition.FALLBACK,
-            fromRoute = "dynamic_detail",
-            toRoute = "dynamic",
-            sourceMetadata = BiliPaiNavSourceMetadata(
-                sourceKey = "home:BV1",
-                sourceRoute = "home",
-                clickedBoundsRecorded = true,
-                cardFullyVisible = true
-            )
-        )
-
-        assertEquals(BiliPaiNavRouteTransition.FALLBACK, transition)
-    }
-
-    @Test
-    fun navDisplayPredictivePop_withoutSharedReady_usesNavDisplayDefaultPredictivePop() {
-        val transition = resolveBiliPaiNavDisplayPredictivePopRouteTransition(
-            motionMode = BiliPaiNavMotionMode.PREDICTIVE_NAV_DISPLAY,
-            cardTransitionEnabled = true,
-            sourceMetadata = BiliPaiNavSourceMetadata(
-                sourceKey = "history:BV1",
-                sourceRoute = "history",
-                clickedBoundsRecorded = true,
-                cardFullyVisible = false
-            ),
-            fromKey = BiliPaiNavKey.VideoDetail("BV1", sourceRoute = "history"),
-            toKey = BiliPaiNavKey.History
-        )
-
-        assertEquals(BiliPaiNavRouteTransition.NAV_DISPLAY_DEFAULT_PREDICTIVE, transition)
-    }
-
-    @Test
-    fun navDisplayPredictivePop_withStaleVideoSource_usesNavDisplayDefaultPredictivePop() {
-        val transition = resolveBiliPaiNavDisplayPredictivePopRouteTransition(
-            motionMode = BiliPaiNavMotionMode.PREDICTIVE_NAV_DISPLAY,
-            cardTransitionEnabled = true,
-            sourceMetadata = BiliPaiNavSourceMetadata(
-                sourceKey = "history:BV1",
-                sourceRoute = "history",
-                clickedBoundsRecorded = true,
-                cardFullyVisible = true
-            ),
-            fromKey = BiliPaiNavKey.VideoDetail("BV2", sourceRoute = "history"),
-            toKey = BiliPaiNavKey.History
-        )
-
-        assertEquals(BiliPaiNavRouteTransition.NAV_DISPLAY_DEFAULT_PREDICTIVE, transition)
-    }
-
-    @Test
     fun sharedElementReady_homeVideoForward_prefersNoOpRouteLayer() {
         val decision = resolveBiliPaiNavMotionDecision(
             fromKey = BiliPaiNavKey.Home,
             toKey = BiliPaiNavKey.VideoDetail("BV1", sourceRoute = "home"),
-            predictiveBackAnimationStyle = PredictiveBackAnimationStyle.NONE,
             cardTransitionEnabled = true,
             sharedTransitionReady = true
         )
@@ -438,11 +208,10 @@ class BiliPaiNavMotionPolicyTest {
     }
 
     @Test
-    fun classicCardMode_interceptsSystemBackSoNavDisplayDoesNotOwnPrediction() {
+    fun classicCardMode_interceptsSystemBackSoAppOwnsBackAction() {
         val decision = resolveBiliPaiNavMotionDecision(
             fromKey = BiliPaiNavKey.VideoDetail("BV1"),
             toKey = BiliPaiNavKey.Home,
-            predictiveBackAnimationStyle = PredictiveBackAnimationStyle.NONE,
             cardTransitionEnabled = true,
             sharedTransitionReady = false
         )
@@ -450,21 +219,5 @@ class BiliPaiNavMotionPolicyTest {
         assertEquals(BiliPaiNavMotionMode.CLASSIC_CARD, decision.mode)
         assertEquals(BiliPaiNavRouteTransition.CLASSIC_CARD, decision.routeTransition)
         assertTrue(decision.interceptSystemBack)
-    }
-
-    @Test
-    fun appBackActionInterception_winsEvenWhenPredictiveBackModeIsRequested() {
-        assertTrue(
-            shouldInterceptSystemBackForNavigation3(
-                mode = BiliPaiNavMotionMode.CLASSIC_CARD,
-                appBackActionRequiresInterception = true
-            )
-        )
-        assertTrue(
-            shouldInterceptSystemBackForNavigation3(
-                mode = BiliPaiNavMotionMode.CLASSIC_CARD,
-                appBackActionRequiresInterception = false
-            )
-        )
     }
 }

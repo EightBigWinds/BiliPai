@@ -48,10 +48,8 @@ internal fun isVideoDetailRoute(route: String?): Boolean {
 }
 
 internal fun shouldEnableVideoDetailSharedTransition(
-    cardTransitionEnabled: Boolean,
-    predictiveBackAnimationEnabled: Boolean
+    cardTransitionEnabled: Boolean
 ): Boolean {
-    // 预测性返回只控制返回进度，不反向关闭用户可见的共享元素动效。
     return cardTransitionEnabled
 }
 

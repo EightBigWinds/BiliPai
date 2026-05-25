@@ -104,29 +104,20 @@ class AppTopLevelNavigationPolicyTest {
     }
 
     @Test
-    fun predictiveBackStillInterceptsRetainedBottomTabReturn() {
+    fun appBackHandlerInterceptsOnlyAppOwnedBackActions() {
         assertTrue(
             shouldInterceptSystemBackForAppAction(
-                predictiveBackAnimationEnabled = true,
                 action = AppSystemBackAction.RETURN_TO_HOME_TAB
             )
         )
         assertFalse(
             shouldInterceptSystemBackForAppAction(
-                predictiveBackAnimationEnabled = true,
                 action = AppSystemBackAction.NAVIGATE_UP
             )
         )
         assertFalse(
             shouldInterceptSystemBackForAppAction(
-                predictiveBackAnimationEnabled = true,
                 action = AppSystemBackAction.FINISH_ACTIVITY
-            )
-        )
-        assertTrue(
-            shouldInterceptSystemBackForAppAction(
-                predictiveBackAnimationEnabled = false,
-                action = AppSystemBackAction.NAVIGATE_UP
             )
         )
     }
@@ -145,7 +136,7 @@ class AppTopLevelNavigationPolicyTest {
         assertTrue(classicBackHandlerIndex >= 0)
         assertTrue(
             classicBackHandlerIndex > navDisplayIndex,
-            "关闭预测性返回时的经典 BackHandler 必须在 NavDisplay 之后组合，才能由应用壳接管返回动作。"
+            "经典 BackHandler 必须在 NavDisplay 之后组合，才能由应用壳接管返回动作。"
         )
     }
 

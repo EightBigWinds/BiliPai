@@ -2,7 +2,7 @@
 package com.android.purebilibili.feature.settings
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable // [Fix] Missing import
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -28,7 +28,6 @@ import com.android.purebilibili.core.ui.blur.BlurIntensity
 import com.android.purebilibili.core.ui.blur.shouldAllowHomeChromeLiquidGlass
 import com.android.purebilibili.core.store.LiquidGlassMode
 import com.android.purebilibili.core.store.BottomBarLiquidGlassPreset
-import com.android.purebilibili.core.store.PredictiveBackAnimationStyle
 import com.android.purebilibili.core.store.SettingsManager
 import com.android.purebilibili.core.ui.AppShapes
 import com.android.purebilibili.core.ui.AppSurfaceTokens
@@ -141,21 +140,6 @@ fun AnimationSettingsContent(
             MotionTier.Enhanced -> "更明显的层级与动势，适合大屏展示"
         }
     }
-    val predictiveBackToggleState = remember(
-        state.predictiveBackAnimationStyle
-    ) {
-        resolvePredictiveBackToggleUiState(
-            predictiveBackAnimationStyle = state.predictiveBackAnimationStyle
-        )
-    }
-    var showPredictiveBackAnimationDialog by remember { mutableStateOf(false) }
-    if (showPredictiveBackAnimationDialog) {
-        PredictiveBackAnimationDialog(
-            currentStyle = state.predictiveBackAnimationStyle,
-            onSelect = { style -> viewModel.setPredictiveBackAnimationStyle(style) },
-            onDismiss = { showPredictiveBackAnimationDialog = false }
-        )
-    }
     val isLiquidGlassAvailable = shouldAllowHomeChromeLiquidGlass(Build.VERSION.SDK_INT)
     val bottomBarLiquidGlassEnabled = state.bottomBarLiquidGlassEnabled
     val bottomBarLiquidGlassPreset by SettingsManager.getBottomBarLiquidGlassPreset(context)
@@ -202,24 +186,6 @@ fun AnimationSettingsContent(
                             checked = state.cardTransitionEnabled,
                             onCheckedChange = { viewModel.toggleCardTransition(it) },
                             iconTint = iOSTeal
-                        )
-                        IOSDivider()
-	                        IOSClickableItem(
-	                            icon = rememberSettingsSemanticIcon(SettingsIconRole.PREDICTIVE_BACK),
-                            title = predictiveBackToggleState.title,
-                            subtitle = predictiveBackToggleState.subtitle,
-                            value = predictiveBackToggleState.selectedStyle.displayName,
-                            onClick = if (predictiveBackToggleState.enabled) {
-                                {
-                                    showPredictiveBackAnimationDialog = true
-                                }
-                            } else {
-                                null
-                            },
-                            iconTint = if (predictiveBackToggleState.enabled) iOSBlue else MaterialTheme.colorScheme.onSurfaceVariant,
-                            textColor = if (predictiveBackToggleState.enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-                            subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            showChevron = predictiveBackToggleState.enabled
                         )
                         IOSDivider()
                         Column(
@@ -452,55 +418,3 @@ fun AnimationSettingsContent(
             item { Spacer(modifier = Modifier.height(32.dp)) }
         }
     }
-
-@Composable
-private fun PredictiveBackAnimationDialog(
-    currentStyle: PredictiveBackAnimationStyle,
-    onSelect: (PredictiveBackAnimationStyle) -> Unit,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = "选择预测性返回的动画效果",
-                style = MaterialTheme.typography.headlineSmall
-            )
-        },
-        text = {
-            Column {
-                PredictiveBackAnimationStyle.entries.forEach { style ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                onSelect(style)
-                                onDismiss()
-                            }
-                            .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = style == currentStyle,
-                            onClick = {
-                                onSelect(style)
-                                onDismiss()
-                            }
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = style.displayName,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("关闭")
-            }
-        },
-        shape = RoundedCornerShape(28.dp)
-    )
-}

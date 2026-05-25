@@ -138,17 +138,17 @@ class SettingsSearchPolicyTest {
     }
 
     @Test
-    fun queryByPredictiveBack_hitsAppearanceEntry() {
+    fun queryByRemovedBackPreview_noLongerHitsSettingsEntry() {
         val results = resolveSettingsSearchResults("预测性返回")
 
-        assertTrue(results.any { it.target == SettingsSearchTarget.APPEARANCE })
+        assertTrue(results.none { it.target == SettingsSearchTarget.ANIMATION })
     }
 
     @Test
-    fun queryByPredictiveBackPreview_hitsAppearanceEntry() {
+    fun queryByRemovedBackPreviewAlias_noLongerHitsSettingsEntry() {
         val results = resolveSettingsSearchResults("预测性返回预览")
 
-        assertTrue(results.any { it.target == SettingsSearchTarget.APPEARANCE })
+        assertTrue(results.none { it.target == SettingsSearchTarget.ANIMATION })
     }
 
     @Test

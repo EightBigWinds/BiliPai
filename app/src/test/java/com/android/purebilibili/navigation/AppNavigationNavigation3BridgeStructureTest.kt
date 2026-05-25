@@ -80,13 +80,15 @@ class AppNavigationNavigation3BridgeStructureTest {
     }
 
     @Test
-    fun appNavigationDoesNotOwnPredictiveBackProgressState() {
+    fun appNavigationDoesNotOwnRemovedBackPreviewProgressState() {
         val source = appNavigationSource()
 
         assertFalse(source.contains("navigation3PredictiveBackGestureState"))
         assertFalse(source.contains("onPredictiveBackGestureChange"))
-        assertTrue(source.contains("videoPredictiveReturnToCardEnabled = videoPredictiveReturnToCardEnabled"))
-        assertTrue(source.contains("videoPredictiveReturnSourceBounds = CardPositionManager.lastClickedCardBounds"))
+        assertFalse(source.contains("video" + "PredictiveReturnToCardEnabled"))
+        assertFalse(source.contains("video" + "PredictiveReturnSourceBounds"))
+        assertFalse(source.contains("shouldEnableVideo" + "PredictiveReturnToCard"))
+        assertFalse(source.contains("predictive" + "BackAnimationStyle"))
     }
 
     @Test

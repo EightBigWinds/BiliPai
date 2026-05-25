@@ -132,14 +132,10 @@ import com.android.purebilibili.navigation3.popBiliPaiNavKey
 import com.android.purebilibili.navigation3.pushBiliPaiNavKey
 import com.android.purebilibili.navigation3.resolveBiliPaiBackGestureDecision
 import com.android.purebilibili.navigation3.resolveBiliPaiNavCardSourceDirection
-import com.android.purebilibili.navigation3.resolveBiliPaiNavMotionMode
 import com.android.purebilibili.navigation3.resolveBiliPaiNavEntryContentRole
 import com.android.purebilibili.navigation3.resolveBiliPaiNavSourceMetadata
 import com.android.purebilibili.navigation3.resolveBiliPaiVideoSource
 import com.android.purebilibili.navigation3.resolveInitialBiliPaiBackStack
-import com.android.purebilibili.navigation3.shouldUseNavigation3PredictivePop
-import com.android.purebilibili.navigation3.shouldEnableVideoPredictiveReturnToCard
-import com.android.purebilibili.navigation3.shouldSuppressPredictiveBackDecoratorForRouteTransition
 import com.android.purebilibili.navigation3.toLegacyRoute
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier // 确保 Modifier 被导入
@@ -319,8 +315,6 @@ fun AppNavigation(
         )
     }
     val cardTransitionEnabled = appearance.cardTransitionEnabled
-    val predictiveBackAnimationStyle = appearance.predictiveBackAnimationStyle
-    val predictiveBackAnimationEnabled = predictiveBackAnimationStyle.usesPredictiveBack
     val isBottomBarBlurEnabled = appearance.bottomBarBlurEnabled
     val bottomBarLabelMode = appearance.bottomBarLabelMode
     val isBottomBarFloating = appearance.bottomBarFloating
@@ -491,12 +485,6 @@ fun AppNavigation(
                 cardTransitionEnabled = cardTransitionEnabled
             )
         }
-        val backRouteMotionMode = remember(predictiveBackAnimationStyle, cardTransitionEnabled) {
-            resolveBiliPaiNavMotionMode(
-                predictiveBackAnimationStyle = predictiveBackAnimationStyle,
-                cardTransitionEnabled = cardTransitionEnabled
-            )
-        }
         val isAtMainHostRoot = navigation3BackStack.lastOrNull() == BiliPaiNavKey.MainHost
         val systemBackAction = remember(
             isAtMainHostRoot,
@@ -506,12 +494,6 @@ fun AppNavigation(
                 isAtMainHostRoot = isAtMainHostRoot,
                 currentBottomItem = currentBottomNavItem,
                 homeItem = BottomNavItem.HOME
-            )
-        }
-        val navigation3MotionMode = remember(predictiveBackAnimationStyle, cardTransitionEnabled) {
-            resolveBiliPaiNavMotionMode(
-                predictiveBackAnimationStyle = predictiveBackAnimationStyle,
-                cardTransitionEnabled = cardTransitionEnabled
             )
         }
         fun currentNavigation3SourceMetadata() = resolveBiliPaiNavSourceMetadata(
@@ -699,25 +681,7 @@ fun AppNavigation(
         }
         val navigation3SourceMetadata = currentNavigation3SourceMetadata()
         val previousNavigation3Key = navigation3BackStack.getOrNull(navigation3BackStack.lastIndex - 1)
-        val videoPredictiveReturnToCardEnabled = remember(
-            currentNavigation3Key,
-            previousNavigation3Key,
-            predictiveBackAnimationStyle,
-            cardTransitionEnabled,
-            navigation3SourceMetadata,
-            CardPositionManager.lastClickedCardBounds
-        ) {
-            shouldEnableVideoPredictiveReturnToCard(
-                currentKey = currentNavigation3Key,
-                previousKey = previousNavigation3Key,
-                predictiveBackAnimationStyle = predictiveBackAnimationStyle,
-                cardTransitionEnabled = cardTransitionEnabled,
-                sourceMetadata = navigation3SourceMetadata,
-                sourceBounds = CardPositionManager.lastClickedCardBounds
-            )
-        }
         val backGestureDecision = remember(
-            predictiveBackAnimationStyle,
             cardTransitionEnabled,
             systemBackAction,
             currentNavigation3Key,
@@ -725,7 +689,6 @@ fun AppNavigation(
             navigation3SourceMetadata
         ) {
             resolveBiliPaiBackGestureDecision(
-                predictiveBackAnimationStyle = predictiveBackAnimationStyle,
                 cardTransitionEnabled = cardTransitionEnabled,
                 systemBackAction = systemBackAction,
                 currentKey = currentNavigation3Key,
@@ -1173,8 +1136,6 @@ fun AppNavigation(
                                     pushNavigation3Route(ScreenRoutes.Space.createRoute(mid))
                                 },
                                 globalHazeState = mainHazeState,
-                                predictiveStableBackRouteMotionEnabled =
-                                    shouldUseNavigation3PredictivePop(backRouteMotionMode),
                                 isReturningFromVideoDetail = navigation3ReturnSession.isReturningFromDetail,
                                 isQuickReturningFromVideoDetail = navigation3ReturnSession.isQuickReturnFromDetail,
                                 onVideoDetailReturnAnimationConsumed = {
@@ -1488,13 +1449,11 @@ fun AppNavigation(
                                     navigation3ReturnSession = navigation3ReturnSession.clearReturning()
                                 },
                                 transitionEnabled = shouldEnableVideoDetailSharedTransition(
-                                    cardTransitionEnabled = cardTransitionEnabled,
-                                    predictiveBackAnimationEnabled = predictiveBackAnimationEnabled
+                                    cardTransitionEnabled = cardTransitionEnabled
                                 ),
                                 fallbackEntryBlurEnabled = !cardTransitionEnabled &&
                                     videoKey.sourceRoute == ScreenRoutes.Home.route &&
                                     navigation3SourceMetadata.cardSourceDirection != BiliPaiNavCardSourceDirection.NONE,
-                                predictiveBackAnimationEnabled = predictiveBackAnimationEnabled,
                                 transitionEnterDurationMillis = navMotionSpec.slowFadeDurationMillis,
                                 transitionMaxBlurRadiusPx = navMotionSpec.maxBackdropBlurRadius,
                                 onBack = {
@@ -2165,19 +2124,12 @@ fun AppNavigation(
 
                 BiliPaiNavDisplayHost(
                     backStack = navigation3BackStack,
-                    motionMode = navigation3MotionMode,
                     cardTransitionEnabled = cardTransitionEnabled,
-                    predictiveBackAnimationStyle = predictiveBackAnimationStyle,
                     sourceMetadata = navigation3SourceMetadata,
                     onBack = { performSystemBackAction() },
                     modifier = Modifier.fillMaxSize(),
                     sharedTransitionScope = LocalSharedTransitionScope.current,
-                    visibleBottomBarRoutes = visibleBottomBarRoutes,
-                    suppressPredictiveBackDecorator = shouldSuppressPredictiveBackDecoratorForRouteTransition(
-                        backGestureDecision.routeTransition
-                    ) || videoPredictiveReturnToCardEnabled,
-                    videoPredictiveReturnToCardEnabled = videoPredictiveReturnToCardEnabled,
-                    videoPredictiveReturnSourceBounds = CardPositionManager.lastClickedCardBounds
+                    visibleBottomBarRoutes = visibleBottomBarRoutes
                 ) { key ->
                     RenderNavigationContent(key)
                 }
@@ -2295,7 +2247,7 @@ fun AppNavigation(
             }
         }
 
-            // 关闭预测性返回时，在 NavDisplay 之后注册经典回退拦截器，由应用壳接管返回动作。
+            // 在 NavDisplay 之后注册经典回退拦截器，由应用壳接管返回动作。
             BackHandler(enabled = shouldInterceptSystemBack) {
                 performSystemBackAction()
             }

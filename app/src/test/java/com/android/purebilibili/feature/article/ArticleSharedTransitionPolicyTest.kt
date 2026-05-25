@@ -41,21 +41,12 @@ class ArticleSharedTransitionPolicyTest {
         assertTrue(
             shouldUseArticleNoOpRouteTransition(
                 cardTransitionEnabled = true,
-                predictiveBackAnimationEnabled = false,
-                sharedTransitionReady = true
-            )
-        )
-        assertTrue(
-            shouldUseArticleNoOpRouteTransition(
-                cardTransitionEnabled = true,
-                predictiveBackAnimationEnabled = true,
                 sharedTransitionReady = true
             )
         )
         assertFalse(
             shouldUseArticleNoOpRouteTransition(
                 cardTransitionEnabled = true,
-                predictiveBackAnimationEnabled = false,
                 sharedTransitionReady = false
             )
         )

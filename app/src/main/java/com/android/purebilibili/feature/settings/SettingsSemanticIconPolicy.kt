@@ -135,7 +135,6 @@ internal enum class SettingsIconRole {
     HOME_CARD_WIDTH,
     CARD_ENTRANCE_ANIMATION,
     CARD_TRANSITION_ANIMATION,
-    PREDICTIVE_BACK,
     BOTTOM_BAR_GLASS,
     TOP_BAR_BLUR,
     BOTTOM_BAR_BLUR,
@@ -289,7 +288,6 @@ private fun resolveMd3SettingsSemanticIcon(role: SettingsIconRole): ImageVector 
     SettingsIconRole.HOME_CARD_WIDTH -> Icons.Outlined.Widgets
     SettingsIconRole.CARD_ENTRANCE_ANIMATION -> Icons.Outlined.AutoAwesome
     SettingsIconRole.CARD_TRANSITION_ANIMATION -> Icons.Outlined.Widgets
-    SettingsIconRole.PREDICTIVE_BACK -> Icons.AutoMirrored.Outlined.ArrowBack
     SettingsIconRole.BOTTOM_BAR_GLASS -> Icons.Outlined.AutoAwesome
     SettingsIconRole.TOP_BAR_BLUR -> Icons.Outlined.Widgets
     SettingsIconRole.BOTTOM_BAR_BLUR -> Icons.Outlined.Widgets
@@ -387,7 +385,6 @@ private fun resolveIosSettingsSemanticIcon(role: SettingsIconRole): ImageVector 
     SettingsIconRole.HOME_CARD_WIDTH -> CupertinoIcons.Outlined.RectangleStack
     SettingsIconRole.CARD_ENTRANCE_ANIMATION -> CupertinoIcons.Outlined.WandAndStars
     SettingsIconRole.CARD_TRANSITION_ANIMATION -> CupertinoIcons.Outlined.ArrowLeftArrowRight
-    SettingsIconRole.PREDICTIVE_BACK -> CupertinoIcons.Outlined.ArrowLeftArrowRight
     SettingsIconRole.BOTTOM_BAR_GLASS -> CupertinoIcons.Outlined.Sparkles
     SettingsIconRole.TOP_BAR_BLUR -> CupertinoIcons.Outlined.SquareStack3dUp
     SettingsIconRole.BOTTOM_BAR_BLUR -> CupertinoIcons.Outlined.SquareStack3dUp

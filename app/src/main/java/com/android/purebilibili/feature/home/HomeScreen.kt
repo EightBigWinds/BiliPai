@@ -174,7 +174,6 @@ fun HomeScreen(
     onStoryClick: () -> Unit = {},  //  [新增] 竖屏短视频
     onSpaceClick: (Long) -> Unit = {},
     globalHazeState: dev.chrisbanes.haze.HazeState? = null,  //  [新增] 全局底栏模糊状态
-    predictiveStableBackRouteMotionEnabled: Boolean = false,
     isReturningFromVideoDetail: Boolean = false,
     isQuickReturningFromVideoDetail: Boolean = false,
     onVideoDetailReturnAnimationConsumed: () -> Unit = {}
@@ -591,8 +590,7 @@ fun HomeScreen(
     val baseIsBottomBarBlurEnabled = homeSettings.isBottomBarBlurEnabled
     val crashTrackingConsentShown = homeSettings.crashTrackingConsentShown
     val baseCardAnimationEnabled = homeSettings.cardAnimationEnabled      //  卡片进场动画开关
-    val baseCardTransitionEnabled = homeSettings.cardTransitionEnabled &&
-        !predictiveStableBackRouteMotionEnabled // 预测返回稳定路由模式下禁用首页共享元素，避免叠层滞留
+    val baseCardTransitionEnabled = homeSettings.cardTransitionEnabled
     val baseBottomBarLiquidGlassEnabled = remember(
         homeSettings.isBottomBarLiquidGlassEnabled,
         homeSettings.androidNativeLiquidGlassEnabled,

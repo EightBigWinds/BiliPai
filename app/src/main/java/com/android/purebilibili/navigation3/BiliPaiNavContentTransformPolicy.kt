@@ -12,25 +12,12 @@ import androidx.compose.animation.togetherWith
 
 private const val NAV3_FALLBACK_FADE_MILLIS = 180
 private const val NAV3_DISABLED_VIDEO_DIRECTION_MILLIS = 220
-private const val NAV3_HOME_VIDEO_SHEET_MILLIS = 416
-
 internal fun resolveBiliPaiNavContentTransform(
     routeTransition: BiliPaiNavRouteTransition
 ): ContentTransform {
     return when (routeTransition) {
         BiliPaiNavRouteTransition.NO_OP_SHARED_ELEMENT ->
             EnterTransition.None togetherWith ExitTransition.None
-        BiliPaiNavRouteTransition.HOME_VIDEO_SHEET_FORWARD ->
-            fadeIn(
-                animationSpec = tween(NAV3_HOME_VIDEO_SHEET_MILLIS),
-                initialAlpha = 1f
-            ) togetherWith ExitTransition.None
-        BiliPaiNavRouteTransition.HOME_VIDEO_SHEET_RETURN ->
-            EnterTransition.None togetherWith
-                fadeOut(
-                    animationSpec = tween(NAV3_HOME_VIDEO_SHEET_MILLIS),
-                    targetAlpha = 1f
-                )
         BiliPaiNavRouteTransition.CARD_DISABLED_VIDEO_FORWARD_FROM_LEFT ->
             disabledVideoDirectionForwardTransform(directionSign = -1)
         BiliPaiNavRouteTransition.CARD_DISABLED_VIDEO_FORWARD_FROM_RIGHT ->
@@ -39,20 +26,10 @@ internal fun resolveBiliPaiNavContentTransform(
             disabledVideoDirectionReturnTransform(directionSign = -1)
         BiliPaiNavRouteTransition.CARD_DISABLED_VIDEO_RETURN_TO_RIGHT ->
             disabledVideoDirectionReturnTransform(directionSign = 1)
-        BiliPaiNavRouteTransition.NAV_DISPLAY_DEFAULT_PREDICTIVE,
         BiliPaiNavRouteTransition.CLASSIC_CARD,
         BiliPaiNavRouteTransition.FALLBACK ->
             fadeIn(animationSpec = tween(NAV3_FALLBACK_FADE_MILLIS)) togetherWith
                 fadeOut(animationSpec = tween(NAV3_FALLBACK_FADE_MILLIS))
-    }
-}
-
-internal fun resolveBiliPaiNavPredictivePopContentTransform(
-    routeTransition: BiliPaiNavRouteTransition
-): ContentTransform? {
-    return when (routeTransition) {
-        BiliPaiNavRouteTransition.NAV_DISPLAY_DEFAULT_PREDICTIVE -> null
-        else -> resolveBiliPaiNavContentTransform(routeTransition)
     }
 }
 

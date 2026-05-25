@@ -1,23 +1,18 @@
 package com.android.purebilibili.navigation3
 
-import com.android.purebilibili.core.store.PredictiveBackAnimationStyle
 import com.android.purebilibili.navigation.AppSystemBackAction
 
 internal enum class BiliPaiNavMotionMode {
     CARD_DISABLED,
-    CLASSIC_CARD,
-    PREDICTIVE_NAV_DISPLAY
+    CLASSIC_CARD
 }
 
 internal enum class BiliPaiNavRouteTransition {
     NO_OP_SHARED_ELEMENT,
-    HOME_VIDEO_SHEET_FORWARD,
-    HOME_VIDEO_SHEET_RETURN,
     CARD_DISABLED_VIDEO_FORWARD_FROM_LEFT,
     CARD_DISABLED_VIDEO_FORWARD_FROM_RIGHT,
     CARD_DISABLED_VIDEO_RETURN_TO_LEFT,
     CARD_DISABLED_VIDEO_RETURN_TO_RIGHT,
-    NAV_DISPLAY_DEFAULT_PREDICTIVE,
     CLASSIC_CARD,
     FALLBACK
 }
@@ -28,27 +23,15 @@ internal data class BiliPaiNavMotionDecision(
     val interceptSystemBack: Boolean
 )
 
-internal enum class BiliPaiBackGestureOwner {
-    NAV_DISPLAY_PREDICTIVE,
-    APP_CLASSIC,
-    APP_ACTION
-}
-
 internal data class BiliPaiBackGestureDecision(
-    val owner: BiliPaiBackGestureOwner,
-    val routeTransition: BiliPaiNavRouteTransition
-) {
+    val routeTransition: BiliPaiNavRouteTransition,
     val interceptSystemBack: Boolean
-        get() = owner != BiliPaiBackGestureOwner.NAV_DISPLAY_PREDICTIVE
-}
+)
 
 internal fun resolveBiliPaiNavMotionMode(
-    predictiveBackAnimationStyle: PredictiveBackAnimationStyle,
     cardTransitionEnabled: Boolean
 ): BiliPaiNavMotionMode {
-    return if (predictiveBackAnimationStyle.usesPredictiveBack) {
-        BiliPaiNavMotionMode.PREDICTIVE_NAV_DISPLAY
-    } else if (cardTransitionEnabled) {
+    return if (cardTransitionEnabled) {
         BiliPaiNavMotionMode.CLASSIC_CARD
     } else {
         BiliPaiNavMotionMode.CARD_DISABLED
@@ -58,15 +41,11 @@ internal fun resolveBiliPaiNavMotionMode(
 internal fun resolveBiliPaiNavMotionDecision(
     fromKey: BiliPaiNavKey?,
     toKey: BiliPaiNavKey?,
-    predictiveBackAnimationStyle: PredictiveBackAnimationStyle,
     cardTransitionEnabled: Boolean,
     sharedTransitionReady: Boolean,
     appBackActionRequiresInterception: Boolean = false
 ): BiliPaiNavMotionDecision {
-    val mode = resolveBiliPaiNavMotionMode(
-        predictiveBackAnimationStyle = predictiveBackAnimationStyle,
-        cardTransitionEnabled = cardTransitionEnabled
-    )
+    val mode = resolveBiliPaiNavMotionMode(cardTransitionEnabled = cardTransitionEnabled)
     val isVideoToCardReturn = fromKey is BiliPaiNavKey.VideoDetail &&
         toKey != null &&
         isCardReturnTargetNavKey(toKey)
@@ -78,8 +57,6 @@ internal fun resolveBiliPaiNavMotionDecision(
             sharedTransitionReady &&
             (isVideoToCardReturn || isCardToVideoForward) ->
             BiliPaiNavRouteTransition.NO_OP_SHARED_ELEMENT
-        mode == BiliPaiNavMotionMode.PREDICTIVE_NAV_DISPLAY ->
-            BiliPaiNavRouteTransition.NAV_DISPLAY_DEFAULT_PREDICTIVE
         mode == BiliPaiNavMotionMode.CLASSIC_CARD ->
             BiliPaiNavRouteTransition.CLASSIC_CARD
         else -> BiliPaiNavRouteTransition.FALLBACK
@@ -96,61 +73,31 @@ internal fun resolveBiliPaiNavMotionDecision(
 }
 
 internal fun resolveBiliPaiBackGestureDecision(
-    predictiveBackAnimationStyle: PredictiveBackAnimationStyle,
     cardTransitionEnabled: Boolean,
     systemBackAction: AppSystemBackAction,
     currentKey: BiliPaiNavKey?,
     previousKey: BiliPaiNavKey?,
     sourceMetadata: BiliPaiNavSourceMetadata
 ): BiliPaiBackGestureDecision {
-    val motionMode = resolveBiliPaiNavMotionMode(
-        predictiveBackAnimationStyle = predictiveBackAnimationStyle,
-        cardTransitionEnabled = cardTransitionEnabled
-    )
-    val routeTransition = resolveBiliPaiNavDisplayPredictivePopRouteTransition(
-        motionMode = motionMode,
+    val motionMode = resolveBiliPaiNavMotionMode(cardTransitionEnabled = cardTransitionEnabled)
+    val routeTransition = resolveBiliPaiNavDisplayPopRouteTransition(
         cardTransitionEnabled = cardTransitionEnabled,
         sourceMetadata = sourceMetadata,
         fromKey = currentKey,
         toKey = previousKey
     )
-    val shouldUseClassicVideoSharedReturn = currentKey is BiliPaiNavKey.VideoDetail &&
-        previousKey != null &&
-        isCardReturnTargetNavKey(previousKey) &&
-        routeTransition == BiliPaiNavRouteTransition.NO_OP_SHARED_ELEMENT
-    val owner = when (systemBackAction) {
-        AppSystemBackAction.RETURN_TO_HOME_TAB -> BiliPaiBackGestureOwner.APP_ACTION
-        AppSystemBackAction.NAVIGATE_UP -> {
-            if (shouldUseClassicVideoSharedReturn) {
-                // 视频共享元素回程必须先由应用壳标记 returning，再 pop；
-                // 否则 NavDisplay 预测性返回会早一帧移除详情页，导致首页闪屏。
-                BiliPaiBackGestureOwner.APP_CLASSIC
-            } else if (predictiveBackAnimationStyle.usesPredictiveBack) {
-                BiliPaiBackGestureOwner.NAV_DISPLAY_PREDICTIVE
-            } else {
-                BiliPaiBackGestureOwner.APP_CLASSIC
-            }
-        }
-        AppSystemBackAction.FINISH_ACTIVITY -> {
-            if (predictiveBackAnimationStyle.usesPredictiveBack) {
-                BiliPaiBackGestureOwner.NAV_DISPLAY_PREDICTIVE
-            } else {
-                BiliPaiBackGestureOwner.APP_CLASSIC
-            }
-        }
-    }
+    val isAppAction = systemBackAction == AppSystemBackAction.RETURN_TO_HOME_TAB
     return BiliPaiBackGestureDecision(
-        owner = owner,
-        routeTransition = if (owner == BiliPaiBackGestureOwner.APP_ACTION) {
+        routeTransition = if (isAppAction) {
             BiliPaiNavRouteTransition.FALLBACK
         } else {
             routeTransition
-        }
+        },
+        interceptSystemBack = isAppAction || motionMode == BiliPaiNavMotionMode.CLASSIC_CARD
     )
 }
 
-internal fun resolveBiliPaiNavDisplayPredictivePopRouteTransition(
-    motionMode: BiliPaiNavMotionMode,
+internal fun resolveBiliPaiNavDisplayPopRouteTransition(
     cardTransitionEnabled: Boolean = true,
     sourceMetadata: BiliPaiNavSourceMetadata,
     fromKey: BiliPaiNavKey?,
@@ -171,14 +118,14 @@ internal fun resolveBiliPaiNavDisplayPredictivePopRouteTransition(
         return BiliPaiNavRouteTransition.NO_OP_SHARED_ELEMENT
     }
     if (!cardTransitionEnabled && sharedReadyVideoToSourceCard) {
-        resolveCardDisabledPredictiveReturnTransition(sourceMetadata.cardSourceDirection)?.let {
+        resolveCardDisabledReturnTransition(sourceMetadata.cardSourceDirection)?.let {
             return it
         }
     }
-    return if (shouldUseNavigation3PredictivePop(motionMode)) {
-        BiliPaiNavRouteTransition.NAV_DISPLAY_DEFAULT_PREDICTIVE
-    } else {
+    return if (cardTransitionEnabled) {
         BiliPaiNavRouteTransition.CLASSIC_CARD
+    } else {
+        BiliPaiNavRouteTransition.FALLBACK
     }
 }
 
@@ -190,22 +137,7 @@ internal fun shouldInterceptSystemBackForNavigation3(
     return mode == BiliPaiNavMotionMode.CLASSIC_CARD
 }
 
-internal fun shouldUseNavigation3PredictivePop(mode: BiliPaiNavMotionMode): Boolean {
-    return mode == BiliPaiNavMotionMode.PREDICTIVE_NAV_DISPLAY
-}
-
-internal fun shouldSuppressPredictiveBackDecoratorForRouteTransition(
-    routeTransition: BiliPaiNavRouteTransition
-): Boolean {
-    return when (routeTransition) {
-        BiliPaiNavRouteTransition.NO_OP_SHARED_ELEMENT,
-        BiliPaiNavRouteTransition.CARD_DISABLED_VIDEO_RETURN_TO_LEFT,
-        BiliPaiNavRouteTransition.CARD_DISABLED_VIDEO_RETURN_TO_RIGHT -> true
-        else -> false
-    }
-}
-
-private fun resolveCardDisabledPredictiveReturnTransition(
+private fun resolveCardDisabledReturnTransition(
     sourceDirection: BiliPaiNavCardSourceDirection
 ): BiliPaiNavRouteTransition? {
     return when (sourceDirection) {

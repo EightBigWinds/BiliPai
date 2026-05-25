@@ -304,11 +304,6 @@ internal fun resolveImagePreviewDismissBackdropAlpha(
     return visualProgress.coerceIn(0f, 1f).pow(0.45f)
 }
 
-internal fun resolvePredictiveBackAnimationProgress(backGestureProgress: Float): Float {
-    val clamped = backGestureProgress.coerceIn(0f, 1f)
-    return 1f - clamped
-}
-
 internal fun resolveImagePreviewText(
     textContent: ImagePreviewTextContent?,
     currentPage: Int,

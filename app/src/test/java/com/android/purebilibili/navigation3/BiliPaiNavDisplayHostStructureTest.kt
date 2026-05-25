@@ -39,9 +39,7 @@ class BiliPaiNavDisplayHostStructureTest {
 
         assertTrue(source.contains("rememberNavigationEventState("))
         assertTrue(source.contains("NavigationBackHandler("))
-        assertTrue(source.contains("onBackCompleted = {"))
-        assertTrue(source.contains("predictiveBackMotion.onBackPressed("))
-        assertTrue(source.contains("onBack()"))
+        assertTrue(source.contains("onBackCompleted = onBack"))
         assertTrue(source.contains("navigationEventState = navigationEventState"))
         assertTrue(source.contains("sceneState = sceneState"))
         kotlin.test.assertFalse(source.contains("NavDisplay(\n        backStack = safeBackStack"))
@@ -67,12 +65,15 @@ class BiliPaiNavDisplayHostStructureTest {
     }
 
     @Test
-    fun navDisplayHostKeepsPredictiveReturnProgressLocalToNavDisplay() {
+    fun navDisplayHostDoesNotKeepRemovedVideoReturnState() {
         val source = navDisplayHostSource()
 
-        assertTrue(source.contains("LocalVideoPredictiveReturnState provides videoPredictiveReturnState"))
-        assertTrue(source.contains("videoPredictiveReturnToCardEnabled: Boolean"))
-        assertTrue(source.contains("videoPredictiveReturnSourceBounds: Rect?"))
+        assertFalse(source.contains("LocalVideo" + "PredictiveReturnState"))
+        assertFalse(source.contains("Video" + "PredictiveReturnState"))
+        assertFalse(source.contains("video" + "PredictiveReturnToCardEnabled"))
+        assertFalse(source.contains("video" + "PredictiveReturnSourceBounds"))
+        assertFalse(source.contains("predictive" + "BackAnimationDecorator"))
+        assertFalse(source.contains("rememberBiliPai" + "PredictiveBackMotion"))
         assertFalse(source.contains("onPredictiveBackGestureChange"))
         assertFalse(source.contains("LaunchedEffect(predictiveBackGestureState)"))
     }
@@ -83,7 +84,7 @@ class BiliPaiNavDisplayHostStructureTest {
 
         assertTrue(source.contains("val popRouteTransition = remember("))
         assertTrue(source.contains("resolveBiliPaiNavPopContentTransform(popRouteTransition)"))
-        assertTrue(source.contains("?: with(predictiveBackMotion)"))
+        assertFalse(source.contains("predictiveBackMotion"))
     }
 
     private fun navDisplayHostSource(): String {
