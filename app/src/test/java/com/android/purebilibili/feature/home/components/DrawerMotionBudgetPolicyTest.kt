@@ -20,8 +20,8 @@ class DrawerMotionBudgetPolicyTest {
     }
 
     @Test
-    fun blurStaysEnabledThroughoutDrawerTransition() {
-        assertTrue(
+    fun blurWaitsUntilDrawerTransitionSettles() {
+        assertFalse(
             shouldEnableDrawerBlur(
                 blurActive = true,
                 budget = DrawerMotionBudget.REDUCED
