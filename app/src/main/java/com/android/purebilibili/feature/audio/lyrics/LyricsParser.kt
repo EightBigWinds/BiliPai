@@ -4,6 +4,7 @@ private val metadataPattern = Regex("^\\[([A-Za-z]+):(.*)]$")
 private val leadingTimestampPattern = Regex("^(?:\\[-?\\d{1,3}:[-?\\d]{1,2}\\.\\d{1,6}])+")
 private val timestampPattern = Regex("\\[(-?\\d{1,3}):(-?\\d{1,2})\\.(\\d{1,6})]")
 private val spanTimestampPattern = Regex("<(-?\\d{1,3}):(-?\\d{1,2})\\.(\\d{1,6})>")
+private const val LYRIC_AUXILIARY_ALIGNMENT_TOLERANCE_MS = 650L
 
 private data class ParsedRawLine(
     val startTimeMs: Long,
@@ -19,19 +20,16 @@ internal fun parseSplLyrics(
     source: LyricSource = LyricSource.BILIBILI
 ): LyricDocument {
     val metadata = linkedMapOf<String, String>()
-    val primaryLines = parseRawLines(primary, metadata)
-    val translations = translation
+    val primaryLines = mergeSimultaneousLines(parseRawLines(primary, metadata))
+    val translationLines = translation
         ?.let { parseRawLines(it, linkedMapOf()) }
         .orEmpty()
-        .groupBy { it.startTimeMs }
-    val romanizations = romanization
+    val romanizationLines = romanization
         ?.let { parseRawLines(it, linkedMapOf()) }
         .orEmpty()
-        .associateBy { it.startTimeMs }
 
     val lines = primaryLines
-        .sortedBy { it.startTimeMs }
-        .mapIndexed { index, raw ->
+        .map { raw ->
             val nextStart = primaryLines
                 .asSequence()
                 .map { it.startTimeMs }
@@ -44,18 +42,19 @@ internal fun parseSplLyrics(
                 startTimeMs = raw.startTimeMs,
                 endTimeMs = endTime.coerceAtLeast(raw.startTimeMs),
                 text = raw.text,
-                translations = translations[raw.startTimeMs]
-                    .orEmpty()
-                    .map { it.text }
-                    .filter { it.isNotBlank() },
-                romanization = romanizations[raw.startTimeMs]?.text?.takeIf { it.isNotBlank() },
-                spans = raw.spans.map { span ->
-                    if (span.endTimeMs > span.startTimeMs) {
-                        span
-                    } else {
-                        span.copy(endTimeMs = endTime.coerceAtLeast(span.startTimeMs))
+                translations = findAlignedLines(translationLines, raw.startTimeMs),
+                romanization = findAlignedLines(romanizationLines, raw.startTimeMs)
+                    .firstOrNull(),
+                spans = raw.spans
+                    .filter { span -> span.startTimeMs < endTime }
+                    .map { span ->
+                        span.copy(
+                            endTimeMs = when {
+                                span.endTimeMs <= span.startTimeMs -> endTime
+                                else -> minOf(span.endTimeMs, endTime)
+                            }.coerceAtLeast(span.startTimeMs)
+                        )
                     }
-                }
             )
         }
 
@@ -64,6 +63,40 @@ internal fun parseSplLyrics(
         lines = lines,
         source = source
     )
+}
+
+private fun mergeSimultaneousLines(lines: List<ParsedRawLine>): List<ParsedRawLine> {
+    return lines
+        .groupBy(ParsedRawLine::startTimeMs)
+        .toSortedMap()
+        .map { (startTimeMs, simultaneous) ->
+            val distinct = simultaneous.distinctBy(ParsedRawLine::text)
+            ParsedRawLine(
+                startTimeMs = startTimeMs,
+                text = distinct.map(ParsedRawLine::text).joinToString("\n"),
+                spans = if (distinct.size == 1) distinct.single().spans else emptyList(),
+                explicitEndTimeMs = simultaneous.mapNotNull(ParsedRawLine::explicitEndTimeMs)
+                    .maxOrNull()
+            )
+        }
+}
+
+private fun findAlignedLines(lines: List<ParsedRawLine>, targetTimeMs: Long): List<String> {
+    val closestTime = lines
+        .map(ParsedRawLine::startTimeMs)
+        .distinct()
+        .minByOrNull { timestamp -> kotlin.math.abs(timestamp - targetTimeMs) }
+        ?.takeIf { timestamp ->
+            kotlin.math.abs(timestamp - targetTimeMs) <= LYRIC_AUXILIARY_ALIGNMENT_TOLERANCE_MS
+        }
+        ?: return emptyList()
+    return lines
+        .asSequence()
+        .filter { it.startTimeMs == closestTime }
+        .map(ParsedRawLine::text)
+        .filter(String::isNotBlank)
+        .distinct()
+        .toList()
 }
 
 private fun parseRawLines(

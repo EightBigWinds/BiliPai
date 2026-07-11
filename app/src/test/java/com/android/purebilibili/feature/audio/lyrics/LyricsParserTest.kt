@@ -30,6 +30,33 @@ class LyricsParserTest {
     }
 
     @Test
+    fun `translation and romanization align within timing tolerance`() {
+        val document = parseSplLyrics(
+            primary = "[00:10.00]光になれ",
+            translation = "[00:10.42]成为光",
+            romanization = "[00:09.56]hikari ni nare"
+        )
+
+        assertEquals(listOf("成为光"), document.lines.single().translations)
+        assertEquals("hikari ni nare", document.lines.single().romanization)
+    }
+
+    @Test
+    fun `simultaneous primary lines are deduplicated and merged`() {
+        val document = parseSplLyrics(
+            """
+            [00:01.00]Lead
+            [00:01.00]Lead
+            [00:01.00]Harmony
+            [00:03.00]Next
+            """.trimIndent()
+        )
+
+        assertEquals(listOf("Lead\nHarmony", "Next"), document.lines.map { it.text })
+        assertEquals(listOf(1_000L, 3_000L), document.lines.map { it.startTimeMs })
+    }
+
+    @Test
     fun `word timestamps create progressive spans`() {
         val document = parseSplLyrics(
             "[00:01.00]Your <00:01.40>voice <00:02.00>shines<00:02.60>"
@@ -46,6 +73,18 @@ class LyricsParserTest {
             line.spans
         )
         assertEquals(2_600L, line.endTimeMs)
+    }
+
+    @Test
+    fun `word spans never extend beyond their lyric line`() {
+        val document = parseSplLyrics(
+            """
+            [00:01.00]A <00:01.80>word
+            [00:02.00]Next
+            """.trimIndent()
+        )
+
+        assertEquals(2_000L, document.lines.first().spans.last().endTimeMs)
     }
 
     @Test

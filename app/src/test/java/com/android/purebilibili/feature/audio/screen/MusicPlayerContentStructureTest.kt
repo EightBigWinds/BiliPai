@@ -20,6 +20,18 @@ class MusicPlayerContentStructureTest {
         assertTrue(compactBranch.contains("navigationBarsPadding()"))
     }
 
+    @Test
+    fun `lyrics auto follow uses viewport offset and pauses for user drag`() {
+        val source = loadSource()
+        val lyricsPage = source.substringAfter("private fun LyricsPage(")
+
+        assertTrue(lyricsPage.contains("collectIsDraggedAsState()"))
+        assertTrue(lyricsPage.contains("resolveLyricFocusScrollOffsetPx("))
+        assertTrue(lyricsPage.contains("delay(LYRIC_AUTO_FOLLOW_RESUME_DELAY_MS)"))
+        assertTrue(!lyricsPage.contains("scrollToItem(currentIndex, -160)"))
+        assertTrue(!lyricsPage.contains("animateScrollToItem(currentIndex, -160)"))
+    }
+
     private fun loadSource(): String {
         val path = "app/src/main/java/com/android/purebilibili/feature/audio/screen/MusicPlayerContent.kt"
         val normalizedPath = path.removePrefix("app/")

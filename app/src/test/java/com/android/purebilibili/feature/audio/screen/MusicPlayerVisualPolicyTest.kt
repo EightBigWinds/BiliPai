@@ -1,6 +1,8 @@
 package com.android.purebilibili.feature.audio.screen
 
 import com.android.purebilibili.feature.audio.lyrics.parseSplLyrics
+import com.android.purebilibili.feature.audio.lyrics.LyricDocument
+import com.android.purebilibili.feature.audio.lyrics.LyricLine
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -47,6 +49,41 @@ class MusicPlayerVisualPolicyTest {
         assertEquals(0, resolveCurrentLyricIndex(document, positionMs = 1_600L))
         assertEquals(1, resolveCurrentLyricIndex(document, positionMs = 3_500L))
         assertEquals(2, resolveCurrentLyricIndex(document, positionMs = 8_000L))
+        assertEquals(-1, resolveCurrentLyricIndex(document, positionMs = 15_501L))
+    }
+
+    @Test
+    fun `explicit lyric ending leaves long instrumental gap unfocused`() {
+        val document = parseSplLyrics(
+            """
+            [00:01.00]Short line<00:02.00>
+            [00:10.00]After gap
+            """.trimIndent()
+        )
+
+        assertEquals(0, resolveCurrentLyricIndex(document, 1_500L))
+        assertEquals(-1, resolveCurrentLyricIndex(document, 5_000L))
+        assertEquals(1, resolveCurrentLyricIndex(document, 10_000L))
+    }
+
+    @Test
+    fun `overlapping lyrics prefer latest active line`() {
+        val document = LyricDocument(
+            lines = listOf(
+                LyricLine(1_000L, 8_000L, "Long"),
+                LyricLine(3_000L, 4_000L, "Short")
+            )
+        )
+
+        assertEquals(1, resolveCurrentLyricIndex(document, 3_500L))
+        assertEquals(0, resolveCurrentLyricIndex(document, 5_000L))
+    }
+
+    @Test
+    fun `lyric focus offset scales with viewport instead of density constants`() {
+        assertEquals(-300, resolveLyricFocusScrollOffsetPx(viewportHeightPx = 1_000))
+        assertEquals(-600, resolveLyricFocusScrollOffsetPx(viewportHeightPx = 2_000))
+        assertEquals(0, resolveLyricFocusScrollOffsetPx(viewportHeightPx = 0))
     }
 
     @Test

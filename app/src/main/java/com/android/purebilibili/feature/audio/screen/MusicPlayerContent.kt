@@ -12,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -95,12 +96,14 @@ import io.github.alexzhirkevich.cupertino.icons.outlined.ChevronDown
 import io.github.alexzhirkevich.cupertino.icons.outlined.Ellipsis
 import io.github.alexzhirkevich.cupertino.icons.outlined.MusicNote
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 private val MusicFallbackColor = Color(0xFF342B42)
 private val MusicContentColor = Color.White
+private const val LYRIC_AUTO_FOLLOW_RESUME_DELAY_MS = 3_000L
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -691,13 +694,26 @@ private fun LyricsPage(
         reduceMotion = reduceMotion
     )
     val listState = rememberLazyListState()
+    val isLyricsDragged by listState.interactionSource.collectIsDraggedAsState()
     var showTranslations by remember { mutableStateOf(true) }
-    LaunchedEffect(currentIndex) {
-        if (currentIndex >= 0) {
+    var isAutoFollowPaused by remember(document) { mutableStateOf(false) }
+    LaunchedEffect(isLyricsDragged) {
+        if (isLyricsDragged) {
+            isAutoFollowPaused = true
+        } else if (isAutoFollowPaused) {
+            delay(LYRIC_AUTO_FOLLOW_RESUME_DELAY_MS)
+            isAutoFollowPaused = false
+        }
+    }
+    LaunchedEffect(currentIndex, isAutoFollowPaused, reduceMotion) {
+        if (currentIndex >= 0 && !isAutoFollowPaused) {
+            val focusOffset = resolveLyricFocusScrollOffsetPx(
+                listState.layoutInfo.viewportSize.height
+            )
             if (reduceMotion) {
-                listState.scrollToItem(currentIndex, -160)
+                listState.scrollToItem(currentIndex, focusOffset)
             } else {
-                listState.animateScrollToItem(currentIndex, -160)
+                listState.animateScrollToItem(currentIndex, focusOffset)
             }
         }
     }

@@ -25,6 +25,11 @@ internal fun resolveMusicGlassFallbackStyle(): MusicGlassFallbackStyle {
     )
 }
 
+internal fun resolveLyricFocusScrollOffsetPx(viewportHeightPx: Int): Int {
+    if (viewportHeightPx <= 0) return 0
+    return -(viewportHeightPx * 0.30f).toInt()
+}
+
 internal fun resolveMusicLyricsBlurEnabled(
     sdkInt: Int,
     effectsEnabled: Boolean,
@@ -86,5 +91,11 @@ internal fun resolveCurrentLyricIndex(
             high = middle - 1
         }
     }
-    return result
+    for (index in result downTo 0) {
+        val line = document.lines[index]
+        if (adjustedPosition >= line.startTimeMs && adjustedPosition < line.endTimeMs) {
+            return index
+        }
+    }
+    return -1
 }
