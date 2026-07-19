@@ -229,345 +229,6 @@ import com.android.purebilibili.feature.video.viewmodel.PlayerToastPresentation
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-@Stable
-private class InlinePortraitPlayerCollapseState(
-    initialOffsetPx: Float = 0f,
-    initialRestoreRequested: Boolean = false
-) {
-    var offsetPx by mutableFloatStateOf(initialOffsetPx)
-        private set
-
-    var restoreRequested by mutableStateOf(initialRestoreRequested)
-        private set
-
-    fun updateOffset(value: Float) {
-        offsetPx = value
-    }
-
-    fun reset() {
-        offsetPx = 0f
-        restoreRequested = false
-    }
-
-    fun beginScroll() {
-        restoreRequested = false
-    }
-
-    fun restore() {
-        offsetPx = 0f
-        restoreRequested = true
-    }
-
-    companion object {
-        val Saver = listSaver<InlinePortraitPlayerCollapseState, Any>(
-            save = { listOf(it.offsetPx, it.restoreRequested) },
-            restore = {
-                InlinePortraitPlayerCollapseState(
-                    initialOffsetPx = it[0] as Float,
-                    initialRestoreRequested = it[1] as Boolean
-                )
-            }
-        )
-    }
-}
-
-@Composable
-private fun rememberInlinePortraitPlayerCollapseState(videoBvid: String) =
-    rememberSaveable(videoBvid, saver = InlinePortraitPlayerCollapseState.Saver) {
-        InlinePortraitPlayerCollapseState()
-    }
-
-internal fun shouldHandleVideoDetailDisposeAsNavigationExit(
-    isNavigatingToAudioMode: Boolean,
-    isNavigatingToMiniMode: Boolean,
-    isMiniModeActive: Boolean,
-    isChangingConfigurations: Boolean,
-    isNavigatingToVideo: Boolean
-): Boolean {
-    return !isNavigatingToAudioMode &&
-        !isNavigatingToMiniMode &&
-        !isMiniModeActive &&
-        !isChangingConfigurations &&
-        !isNavigatingToVideo
-}
-
-internal fun resolveIsNavigatingToVideoDuringDispose(
-    localNavigatingToVideo: Boolean,
-    managerNavigatingToVideo: Boolean
-): Boolean {
-    return localNavigatingToVideo || managerNavigatingToVideo
-}
-
-internal fun shouldMarkReturningStateOnVideoDetailDispose(
-    shouldHandleAsNavigationExit: Boolean
-): Boolean {
-    return shouldHandleAsNavigationExit
-}
-
-internal fun shouldClearStaleReturningStateOnVideoDetailEnter(
-    isReturningFromDetail: Boolean
-): Boolean {
-    return isReturningFromDetail
-}
-
-
-internal fun shouldShowExternalPlaylistQueueBarByPolicy(
-    isExternalPlaylist: Boolean,
-    externalPlaylistSource: ExternalPlaylistSource,
-    playlistSize: Int
-): Boolean {
-    val sourceCanShowQueue = when (externalPlaylistSource) {
-        ExternalPlaylistSource.WATCH_LATER,
-        ExternalPlaylistSource.FAVORITE,
-        ExternalPlaylistSource.SPACE -> true
-        ExternalPlaylistSource.NONE,
-        ExternalPlaylistSource.UNKNOWN -> false
-    }
-    return isExternalPlaylist &&
-        sourceCanShowQueue &&
-        playlistSize > 0
-}
-
-internal fun shouldShowExternalPlaylistQueueBarOnContentTab(
-    queueAvailable: Boolean,
-    selectedTabIndex: Int
-): Boolean {
-    return queueAvailable && selectedTabIndex != VIDEO_CONTENT_COMMENT_TAB_INDEX
-}
-
-internal fun resolveExternalPlaylistQueueTitle(
-    externalPlaylistSource: ExternalPlaylistSource
-): String {
-    return when (externalPlaylistSource) {
-        ExternalPlaylistSource.WATCH_LATER -> "稍后再看"
-        ExternalPlaylistSource.FAVORITE -> "收藏夹"
-        ExternalPlaylistSource.SPACE -> "UP主视频"
-        ExternalPlaylistSource.NONE,
-        ExternalPlaylistSource.UNKNOWN -> "播放队列"
-    }
-}
-
-internal fun normalizePlaylistCoverUrlForUi(rawUrl: String?): String {
-    val url = rawUrl?.trim().orEmpty()
-    if (url.isBlank()) return ""
-    return when {
-        url.startsWith("//") -> "https:$url"
-        url.startsWith("http://", ignoreCase = true) -> "https://${url.substring(7)}"
-        else -> url
-    }
-}
-
-internal fun resolveExternalPlaylistQueueListMaxHeightDp(screenHeightDp: Int): Int {
-    val dynamicHeight = (screenHeightDp * 0.72f).roundToInt()
-    return dynamicHeight.coerceIn(420, 680)
-}
-
-internal fun resolveExternalPlaylistQueueBottomSpacerDp(navigationBarBottomDp: Int): Int {
-    return (navigationBarBottomDp + 8).coerceAtLeast(8)
-}
-
-internal enum class ExternalPlaylistQueueSheetPresentation {
-    INLINE_HAZE,
-    MODAL
-}
-
-internal fun resolveExternalPlaylistQueueSheetPresentation(
-    requireRealtimeHaze: Boolean
-): ExternalPlaylistQueueSheetPresentation {
-    return if (requireRealtimeHaze) {
-        ExternalPlaylistQueueSheetPresentation.INLINE_HAZE
-    } else {
-        ExternalPlaylistQueueSheetPresentation.MODAL
-    }
-}
-
-internal fun shouldOpenCommentUrlInApp(url: String): Boolean {
-    val uri = runCatching { java.net.URI(url) }.getOrNull() ?: return false
-    val scheme = uri.scheme?.lowercase().orEmpty()
-    if (scheme !in setOf("http", "https", "bili", "bilibili")) return false
-    val host = uri.host?.lowercase().orEmpty()
-    return host.contains("bilibili.com") || host.contains("b23.tv")
-}
-
-internal sealed interface CommentUrlNavigationTarget {
-    data class Video(val videoId: String) : CommentUrlNavigationTarget
-    data class Search(val keyword: String) : CommentUrlNavigationTarget
-    data class Space(val mid: Long) : CommentUrlNavigationTarget
-}
-
-internal fun resolveCommentUrlNavigationTarget(rawUrl: String): CommentUrlNavigationTarget? {
-    val url = rawUrl.trim()
-    if (url.isEmpty()) return null
-    return when (val target = com.android.purebilibili.core.util.BilibiliNavigationTargetParser.parse(url)) {
-        is com.android.purebilibili.core.util.BilibiliNavigationTarget.Video -> {
-            target.videoId.trim()
-                .takeIf { it.isNotEmpty() }
-                ?.let(CommentUrlNavigationTarget::Video)
-        }
-
-        is com.android.purebilibili.core.util.BilibiliNavigationTarget.Search -> {
-            target.keyword.trim()
-                .takeIf { it.isNotEmpty() }
-                ?.let(CommentUrlNavigationTarget::Search)
-        }
-
-        is com.android.purebilibili.core.util.BilibiliNavigationTarget.Space -> {
-            target.mid.takeIf { it > 0L }?.let(CommentUrlNavigationTarget::Space)
-        }
-
-        else -> null
-    }
-}
-
-internal fun resolveDanmakuDialogTopReservePx(
-    isLandscape: Boolean,
-    isFullscreenMode: Boolean,
-    isPortraitFullscreen: Boolean,
-    playerBottomPx: Int?,
-    fallbackPlayerBottomPx: Int = 0
-): Int {
-    if (isLandscape || isFullscreenMode || isPortraitFullscreen) return 0
-    return (playerBottomPx ?: fallbackPlayerBottomPx).coerceAtLeast(0)
-}
-
-
-
-internal fun shouldApplyPipParamsUpdate(
-    pipModeEnabled: Boolean,
-    modeChanged: Boolean,
-    boundsChanged: Boolean,
-    elapsedSinceLastUpdateMs: Long,
-    minUpdateIntervalMs: Long = 400L
-): Boolean {
-    if (!pipModeEnabled) return false
-    if (modeChanged) return true
-    if (!boundsChanged) return false
-    return elapsedSinceLastUpdateMs >= minUpdateIntervalMs
-}
-
-internal fun shouldDismissCommentThreadDetailForPip(
-    wasInPipMode: Boolean,
-    isInPipMode: Boolean,
-    subReplyVisible: Boolean
-): Boolean {
-    return !wasInPipMode && isInPipMode && subReplyVisible
-}
-
-internal fun shouldAutoEnterAudioModeFromRoute(
-    startAudioFromRoute: Boolean,
-    hasAutoEnteredAudioMode: Boolean,
-    isVideoLoadSuccess: Boolean
-): Boolean {
-    return startAudioFromRoute && !hasAutoEnteredAudioMode && isVideoLoadSuccess
-}
-
-internal fun shouldAutoEnterPortraitFullscreenFromRoute(
-    autoEnterPortraitFromRoute: Boolean,
-    startAudioFromRoute: Boolean,
-    portraitExperienceEnabled: Boolean,
-    useOfficialInlinePortraitDetailExperience: Boolean,
-    allowStandalonePortraitAutoEnter: Boolean = true,
-    isCurrentRouteVideoLoaded: Boolean,
-    isVerticalVideo: Boolean,
-    isPortraitFullscreen: Boolean,
-    hasAutoEnteredPortraitFromRoute: Boolean
-): Boolean {
-    return autoEnterPortraitFromRoute &&
-        !startAudioFromRoute &&
-        portraitExperienceEnabled &&
-        !useOfficialInlinePortraitDetailExperience &&
-        allowStandalonePortraitAutoEnter &&
-        isCurrentRouteVideoLoaded &&
-        isVerticalVideo &&
-        !isPortraitFullscreen &&
-        !hasAutoEnteredPortraitFromRoute
-}
-
-internal fun shouldStartInPortraitFullscreenFromRouteHint(
-    autoEnterPortraitFromRoute: Boolean,
-    startAudioFromRoute: Boolean,
-    initialVerticalFromRoute: Boolean
-): Boolean {
-    return autoEnterPortraitFromRoute &&
-        !startAudioFromRoute &&
-        initialVerticalFromRoute
-}
-
-internal fun shouldSyncMainPlayerToInternalBvid(
-    isPortraitFullscreen: Boolean,
-    routeBvid: String,
-    currentBvid: String,
-    currentBvidCid: Long,
-    loadedBvid: String,
-    loadedCid: Long
-): Boolean {
-    if (isPortraitFullscreen) return false
-    if (currentBvid.isBlank()) return false
-    if (loadedBvid != currentBvid && currentBvid == routeBvid) return false
-    if (loadedBvid != currentBvid) return true
-    val targetCid = currentBvidCid.takeIf { it > 0L } ?: return false
-    val resolvedLoadedCid = loadedCid.takeIf { it > 0L } ?: return true
-    return resolvedLoadedCid != targetCid
-}
-
-internal fun resolveVideoDetailPlaybackTargetCid(
-    routeBvid: String,
-    routeCid: Long,
-    currentBvid: String,
-    currentBvidCid: Long
-): Long {
-    currentBvidCid.takeIf { it > 0L }?.let { return it }
-    return routeCid.takeIf {
-        it > 0L && currentBvid.trim() == routeBvid.trim()
-    } ?: 0L
-}
-
-internal fun resolveAutoPlayOverrideForInternalBvidSync(
-    forceAutoPlay: Boolean
-): Boolean? {
-    return if (forceAutoPlay) true else null
-}
-
-internal fun shouldSwitchCollectionVideoInsideCurrentDetailPage(
-    targetBvid: String,
-    currentBvid: String,
-    ugcSeason: UgcSeason?
-): Boolean {
-    val normalizedTargetBvid = targetBvid.trim()
-    if (normalizedTargetBvid.isBlank() || normalizedTargetBvid == currentBvid.trim()) {
-        return false
-    }
-    return ugcSeason
-        ?.sections
-        .orEmpty()
-        .flatMap { section -> section.episodes }
-        .any { episode -> episode.bvid == normalizedTargetBvid } == true
-}
-
-internal data class VideoPlayerSectionTarget(
-    val bvid: String,
-    val entryCoverUrl: String
-)
-
-internal fun resolveVideoPlayerSectionTarget(
-    routeBvid: String,
-    routeCoverUrl: String,
-    currentBvid: String
-): VideoPlayerSectionTarget {
-    val normalizedCurrentBvid = currentBvid.trim()
-    val normalizedRouteBvid = routeBvid.trim()
-    val resolvedBvid = normalizedCurrentBvid.ifBlank { normalizedRouteBvid }
-    val resolvedCoverUrl = if (resolvedBvid == normalizedRouteBvid) {
-        routeCoverUrl
-    } else {
-        ""
-    }
-    return VideoPlayerSectionTarget(
-        bvid = resolvedBvid,
-        entryCoverUrl = resolvedCoverUrl
-    )
-}
-
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @OptIn(
     ExperimentalSharedTransitionApi::class,
@@ -749,9 +410,19 @@ internal fun VideoDetailScreenStateHolder(
         supplementViewModel = supplementViewModel,
     )
     val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
-    var isNavigatingToVideo by remember { mutableStateOf(false) }
-    var isNavigatingToAudioMode by remember { mutableStateOf(false) }
-    var isNavigatingToMiniMode by remember { mutableStateOf(false) }
+    val presentationState = rememberVideoDetailPresentationState(
+        routeBvid = bvid,
+        initialCid = 0L,
+        initialPortraitFullscreen = shouldStartInPortraitFullscreenFromRouteHint(
+            autoEnterPortraitFromRoute = autoEnterPortraitFromRoute,
+            startAudioFromRoute = startAudioFromRoute,
+            initialVerticalFromRoute = initialVerticalFromRoute,
+        ),
+        initialPipMode = isInPipMode,
+    )
+    var isNavigatingToVideo by presentationState.navigatingToVideoState
+    var isNavigatingToAudioMode by presentationState.navigatingToAudioModeState
+    var isNavigatingToMiniMode by presentationState.navigatingToMiniModeState
     var hasAutoEnteredAudioMode by rememberSaveable { mutableStateOf(false) }
     var hasAutoEnteredPortraitFromRoute by rememberSaveable(bvid) { mutableStateOf(false) }
     var hasHandledCommentRootFromRoute by rememberSaveable(
@@ -760,8 +431,11 @@ internal fun VideoDetailScreenStateHolder(
         openCommentTargetRpidFromRoute
     ) { mutableStateOf(false) }
     // 🔄 [Seamless Playback] Internal BVID state to support seamless switching in portrait mode
-    var currentBvid by rememberSaveable(bvid) { mutableStateOf(bvid) }
-    var currentBvidCid by rememberSaveable(bvid) { mutableLongStateOf(0L) }
+    var currentBvid by presentationState.currentBvidState
+    var currentBvidCid by presentationState.currentCidState
+    var isPipMode by presentationState.pipModeState
+    var isPortraitFullscreen by presentationState.portraitFullscreenState
+    var selectedVideoContentTabIndex by presentationState.selectedTabIndexState
     val playbackTargetCid = resolveVideoDetailPlaybackTargetCid(
         routeBvid = bvid,
         routeCid = cid,
@@ -842,8 +516,7 @@ internal fun VideoDetailScreenStateHolder(
         if (success?.info?.bvid == normalizedBvid && (safeCid <= 0L || success.info.cid == safeCid)) {
             return
         }
-        currentBvid = normalizedBvid
-        currentBvidCid = safeCid
+        presentationState.switchVideo(normalizedBvid, safeCid)
         viewModel.loadVideo(
             bvid = normalizedBvid,
             cid = safeCid,
@@ -879,7 +552,7 @@ internal fun VideoDetailScreenStateHolder(
                     autoPlay = true
                 )
             } else {
-                isNavigatingToVideo = true
+                presentationState.markNavigatingToVideo()
                 miniPlayerManager?.isNavigatingToVideo = true
                 markSecondaryNavigationLeave(expectedBvid = success?.info?.bvid ?: currentBvid)
                 val navOptions = android.os.Bundle(options ?: android.os.Bundle.EMPTY)
@@ -1220,9 +893,8 @@ internal fun VideoDetailScreenStateHolder(
             lifecycle = lifecycleOwner.lifecycle
         )
 
-    var isPipMode by remember { mutableStateOf(isInPipMode) }
     var previousPipMode by remember { mutableStateOf(isInPipMode) }
-    LaunchedEffect(isInPipMode) { isPipMode = isInPipMode }
+    LaunchedEffect(isInPipMode) { presentationState.syncPipMode(isInPipMode) }
     LaunchedEffect(isPipMode, subReplyState.visible) {
         val shouldDismissThreadDetail = shouldDismissCommentThreadDetailForPip(
             wasInPipMode = previousPipMode,
@@ -1296,7 +968,7 @@ internal fun VideoDetailScreenStateHolder(
             )
         ) {
             hasAutoEnteredAudioMode = true
-            isNavigatingToAudioMode = true
+            presentationState.markNavigatingToAudioMode()
             viewModel.setAudioMode(true)
             onNavigateToAudioMode()
         }
@@ -1779,15 +1451,6 @@ internal fun VideoDetailScreenStateHolder(
     }
 
     // 📱 [修复] 提升竖屏全屏状态到 Screen 级别，防止 VideoPlayerState 重建时状态丢失
-    var isPortraitFullscreen by rememberSaveable {
-        mutableStateOf(
-            shouldStartInPortraitFullscreenFromRouteHint(
-                autoEnterPortraitFromRoute = autoEnterPortraitFromRoute,
-                startAudioFromRoute = startAudioFromRoute,
-                initialVerticalFromRoute = initialVerticalFromRoute
-            )
-        )
-    }
     val useSharedPortraitPlayer = shouldUseSharedPlayerForPortraitFullscreen()
     val portraitPagerMotionSpec = remember {
         resolveStandalonePortraitPagerMotionSpec()
@@ -2269,7 +1932,7 @@ internal fun VideoDetailScreenStateHolder(
             portraitSyncSnapshotCid = (uiState as? VideoPlaybackUiState.Success)?.info?.cid ?: 0L
             portraitSyncSnapshotPositionMs = playerState.player.currentPosition.coerceAtLeast(0L)
             hasPendingPortraitSync = false
-            isPortraitFullscreen = true
+            presentationState.setPortraitFullscreen(true)
         }
     }
     LaunchedEffect(
@@ -2332,8 +1995,7 @@ internal fun VideoDetailScreenStateHolder(
             portraitSyncSnapshotCid = portraitSyncSnapshotCid,
             currentBvidCid = currentBvidCid
         ) ?: return
-        currentBvid = target.bvid
-        currentBvidCid = target.cid
+        presentationState.switchVideo(target.bvid, target.cid)
     }
 
 
@@ -2484,7 +2146,7 @@ internal fun VideoDetailScreenStateHolder(
             manager.enterMiniMode(forced = true)
 
             // 3. 返回上一页（首页）
-            isNavigatingToMiniMode = true
+            presentationState.markNavigatingToMiniMode()
             onBack()
         } ?: run {
             // 如果 miniPlayerManager 不存在，直接返回
@@ -2594,7 +2256,7 @@ internal fun VideoDetailScreenStateHolder(
         reportPredictiveProgress = predictiveBackGestureEnabled,
         onBackCompleted = { commitTransition: () -> Unit ->
             when (localBackTarget) {
-                VideoDetailLocalBackTarget.EXIT_PORTRAIT_FULLSCREEN -> isPortraitFullscreen = false
+                VideoDetailLocalBackTarget.EXIT_PORTRAIT_FULLSCREEN -> presentationState.setPortraitFullscreen(false)
                 VideoDetailLocalBackTarget.EXIT_LANDSCAPE_FULLSCREEN -> toggleFullscreen()
                 VideoDetailLocalBackTarget.NAVIGATE_BACK -> Unit
             }
@@ -2670,8 +2332,6 @@ internal fun VideoDetailScreenStateHolder(
             pendingMainReloadBvidAfterPortrait != uiSuccessState?.info?.bvid ||
                 (portraitSyncSnapshotCid > 0L && portraitSyncSnapshotCid != (uiSuccessState?.info?.cid ?: 0L))
             )
-    var selectedVideoContentTabIndex by rememberSaveable(currentBvid) { mutableIntStateOf(0) }
-
     // Android 16 ART 曾拒绝校验由 VideoDetailRouteSheetHost 尾随 lambda 生成的超大合成方法
     // （VerifyError: VideoDetailScreen$lambda$N(...BoxScope, Composer, int) 参数过多）。
     // 主布局与覆盖层必须使用两个内容槽，单个局部函数仍会捕获全部状态并生成百参数方法。
@@ -2763,7 +2423,7 @@ internal fun VideoDetailScreenStateHolder(
                     isAudioOnly = false, // 全屏模式只有视频
                     onAudioOnlyToggle = {
                         viewModel.setAudioMode(true)
-                        isNavigatingToAudioMode = true // [Fix] Set flag to prevent notification cancellation
+                        presentationState.markNavigatingToAudioMode()
                         onNavigateToAudioMode()
                     },
 
@@ -2790,7 +2450,7 @@ internal fun VideoDetailScreenStateHolder(
                                 }
                                 enterPortraitFullscreen()
                             } else {
-                                isPortraitFullscreen = false
+                                presentationState.setPortraitFullscreen(false)
                             }
                         }
                     },
@@ -2875,7 +2535,7 @@ internal fun VideoDetailScreenStateHolder(
                             onUpClick = navigateToUserSpaceFromVideo,
                             onBgmClick = onBgmClick,
                             onNavigateToAudioMode = {
-                                isNavigatingToAudioMode = true // [Fix] Set flag to prevent notification cancellation
+                                presentationState.markNavigatingToAudioMode()
                                 onNavigateToAudioMode()
                             },
                             onToggleFullscreen = { toggleFullscreen() },  // 📺 平板全屏切换
@@ -3327,7 +2987,7 @@ internal fun VideoDetailScreenStateHolder(
                                 audioQualityPreference = audioQualityPreference,
                                 onNavigateToAudioMode = {
                                     viewModel.setAudioMode(true)
-                                    isNavigatingToAudioMode = true
+                                    presentationState.markNavigatingToAudioMode()
                                     onNavigateToAudioMode()
                                 },
                                 forceCoverOnly = forceCoverOnlyForReturn ||
@@ -3440,7 +3100,7 @@ internal fun VideoDetailScreenStateHolder(
                                         onBgmClick = onBgmClick,
                                         homeUpBadgesVisible = homeUpBadgesVisible,
                                         isVideoPlaying = isVideoPlaying,
-                                        onSelectedTabChange = { selectedVideoContentTabIndex = it },
+                                        onSelectedTabChange = presentationState::selectTab,
                                         onIntroScrollThresholdChange = {
                                             introScrollPastCollapseThreshold = it
                                         },
@@ -3624,9 +3284,9 @@ internal fun VideoDetailScreenStateHolder(
                     initialBvid = portraitInitialBvid,
                     initialInfo = success.info,
                     recommendations = success.related,
-                    onBack = { isPortraitFullscreen = false },
+                    onBack = { presentationState.setPortraitFullscreen(false) },
                     onHomeClick = {
-                        isPortraitFullscreen = false
+                        presentationState.setPortraitFullscreen(false)
                         handleTopBarAction(resolveVideoDetailTopBarAction(isHomeButton = true))
                     },
                     onVideoChange = { newBvid ->
@@ -3652,8 +3312,7 @@ internal fun VideoDetailScreenStateHolder(
                         }
                     },
                     onExitSnapshot = { bvid, pos, cidSnapshot ->
-                        currentBvid = bvid
-                        currentBvidCid = cidSnapshot
+                        presentationState.switchVideo(bvid, cidSnapshot)
                         portraitPendingSelectionBvid = bvid
                         portraitSyncSnapshotBvid = bvid
                         portraitSyncSnapshotCid = cidSnapshot
@@ -3676,7 +3335,7 @@ internal fun VideoDetailScreenStateHolder(
                         if (com.android.purebilibili.feature.video.ui.pager
                                 .shouldExitPortraitForExternalNavigation(isPortraitFullscreen)
                         ) {
-                            isPortraitFullscreen = false
+                            presentationState.setPortraitFullscreen(false)
                         }
                         navigateToSearchFromVideo()
                     },
@@ -3686,12 +3345,12 @@ internal fun VideoDetailScreenStateHolder(
                             ?: portraitSyncSnapshotBvid
                             ?: (uiState as? VideoPlaybackUiState.Success)?.info?.bvid
                         if (!anchorBvid.isNullOrBlank()) {
-                            currentBvid = anchorBvid
-                            currentBvidCid = if (anchorBvid == portraitSyncSnapshotBvid) {
+                            val anchorCid = if (anchorBvid == portraitSyncSnapshotBvid) {
                                 portraitSyncSnapshotCid
                             } else {
                                 0L
                             }
+                            presentationState.switchVideo(anchorBvid, anchorCid)
                             pendingMainReloadBvidAfterPortrait = anchorBvid
                         }
                         hasDeferredPortraitRestoreAfterExternalNavigation =
@@ -3703,12 +3362,12 @@ internal fun VideoDetailScreenStateHolder(
                         if (com.android.purebilibili.feature.video.ui.pager
                                 .shouldExitPortraitForUserSpaceNavigation(isPortraitFullscreen)
                         ) {
-                            isPortraitFullscreen = false
+                            presentationState.setPortraitFullscreen(false)
                         }
                         navigateToUserSpaceFromVideo(mid)
                     },
                     onRotateToLandscape = {
-                        isPortraitFullscreen = false
+                        presentationState.setPortraitFullscreen(false)
                         val activity = context.findActivity()
                         val targetOrientation = resolvePortraitRotateTargetOrientation(
                             isOrientationDrivenFullscreen = isOrientationDrivenFullscreen,

@@ -7,17 +7,6 @@ import com.android.purebilibili.feature.video.note.VideoNoteEditorDocument
 import com.android.purebilibili.feature.video.viewmodel.CommentSortMode
 
 @Immutable
-internal data class VideoDetailPresentationState(
-    val currentBvid: String,
-    val selectedTabIndex: Int,
-    val isFullscreen: Boolean,
-    val isPortraitFullscreen: Boolean,
-    val isInPipMode: Boolean,
-    val isLeaving: Boolean,
-    val isCommentThreadVisible: Boolean
-)
-
-@Immutable
 internal data class VideoDetailPlaybackActions(
     val changeQuality: (Int) -> Unit,
     val reloadVideo: () -> Unit,
