@@ -259,7 +259,7 @@ tasks.matching { task ->
 // }
 
 dependencies {
-    val miuixVersion = "0.9.2"
+    val miuixVersion = "0.9.3"
     val material3Version = "1.5.0-alpha18"
     val media3Version = "1.10.0"
     val lifecycleVersion = "2.10.0"
@@ -284,6 +284,7 @@ dependencies {
     implementation("top.yukonga.miuix.kmp:miuix-ui-android:$miuixVersion")
     implementation("top.yukonga.miuix.kmp:miuix-preference-android:$miuixVersion")
     implementation("top.yukonga.miuix.kmp:miuix-blur-android:$miuixVersion")
+    implementation("top.yukonga.miuix.kmp:miuix-shader-android:$miuixVersion")
     implementation("top.yukonga.miuix.kmp:miuix-squircle-android:$miuixVersion")
     implementation("top.yukonga.miuix.kmp:miuix-icons-android:$miuixVersion")
     // 图标扩展库 (全屏、设置图标等)

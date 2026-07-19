@@ -18,6 +18,7 @@ import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.animation.*
+import com.android.purebilibili.core.ui.AdaptivePlainTooltipBox
 import com.android.purebilibili.core.ui.AppShapes
 import com.android.purebilibili.core.ui.AppSurfaceTokens
 import com.android.purebilibili.core.ui.ContainerLevel
@@ -2143,49 +2144,51 @@ private fun AppearanceUiPresetDescriptionCard(
     val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     val borderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)
 
-    Surface(
-        shape = AppShapes.borderedContainer(ContainerLevel.Dialog),
-        color = containerColor,
-        contentColor = contentColor,
-        tonalElevation = 0.dp,
-        border = androidx.compose.foundation.BorderStroke(1.dp, borderColor)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.Top
+    AdaptivePlainTooltipBox(text = summary) {
+        Surface(
+            shape = AppShapes.borderedContainer(ContainerLevel.Dialog),
+            color = containerColor,
+            contentColor = contentColor,
+            tonalElevation = 0.dp,
+            border = androidx.compose.foundation.BorderStroke(1.dp, borderColor)
         ) {
-            Surface(
-                modifier = Modifier.size(34.dp),
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
-                contentColor = MaterialTheme.colorScheme.primary
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.Top
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
+                Surface(
+                    modifier = Modifier.size(34.dp),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
+                    contentColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = summary,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = contentColor.copy(alpha = 0.82f)
                     )
                 }
-            }
-
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = summary,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = contentColor.copy(alpha = 0.82f)
-                )
             }
         }
     }
