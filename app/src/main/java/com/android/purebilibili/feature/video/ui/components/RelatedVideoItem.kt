@@ -237,6 +237,7 @@ fun RelatedVideoItem(
         } else {
             latestOnClick()
         }
+        Unit
     }
     val cardShape = RoundedCornerShape(12.dp)
     val coverShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
