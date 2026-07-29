@@ -759,6 +759,7 @@ fun BottomBarLiquidSegmentedControl(
                                     onDrawSurface = { drawRect(containerColor) }
                                 )
                         } else {
+                            // Kyant fallback: same ExtraSmall blur + ExtraLarge capture lens as Miuix/KSU.
                             this.layerBackdrop(tabsBackdrop)
                                 .graphicsLayer { translationX = exportPanelOffsetPx }
                                 .run {
@@ -770,7 +771,7 @@ fun BottomBarLiquidSegmentedControl(
                                                 if (shouldUseBottomBarCaptureLens(liquidGlassEnabled)) {
                                                     vibrancy()
                                                 }
-                                                blur(androidNativeTuning.shellBlurRadiusDp.dp.toPx())
+                                                blur(AppSpacingTokens.ExtraSmall.toPx())
                                                 if (shouldUseBottomBarCaptureLens(liquidGlassEnabled)) {
                                                     lens(
                                                         refractionHeight = AppSpacingTokens.ExtraLarge.toPx(),

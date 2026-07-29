@@ -310,14 +310,21 @@ class VideoCommentViewModel : ViewModel() {
         
         android.util.Log.d("CommentVM", " setSortMode: ${currentState.sortMode} -> $mode, clearing upOnlyFilter")
         
-        //  [修复] 切换排序时清除"只看UP主"筛选
+        // 切换排序时清除"只看UP主"筛选。
+        // Stale-while-revalidate: keep previous UI replies until the first page of the new
+        // sort arrives so comment chrome / floating bottom-input liquid glass does not
+        // re-sample an empty LazyColumn (visible flash of gray frosted shell).
         allReplies = emptyList()
-        _commentState.value = CommentUiState(
+        _commentState.value = currentState.copy(
             sortMode = mode,
-            upOnlyFilter = false,  //  互斥：清除 UP 筛选
-            upMid = currentState.upMid,
-            currentMid = currentState.currentMid,
-            replyCount = currentState.replyCount
+            upOnlyFilter = false, // 互斥：清除 UP 筛选
+            nextPage = 1,
+            isRepliesEnd = false,
+            isRepliesLoading = false, // loadComments() sets true
+            repliesError = null,
+            grpcNextOffset = null,
+            pinnedReplyIds = persistentSetOf(),
+            // replies + replyCount intentionally retained until page 1 replaces them
         )
         loadComments()
     }

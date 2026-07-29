@@ -24,7 +24,8 @@ class AppSegmentedControlPolicyTest {
         assertEquals(40, policy.heightDp)
         assertEquals(32, policy.indicatorHeightDp)
         assertEquals(15, policy.labelFontSizeSp)
-        assertFalse(policy.liquidGlassEffectsEnabled)
+        // Glass chrome path stays on even without page capture (shell uses KSU tint).
+        assertTrue(policy.liquidGlassEffectsEnabled)
         assertTrue(policy.tapPressRefractionEnabled)
     }
 

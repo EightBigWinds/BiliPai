@@ -45,7 +45,8 @@ class CommentSortFilterBarPolicyTest {
         assertTrue(source.contains("miuixBackdrop = miuixBackdrop"))
         assertFalse(source.contains("com.kyant.backdrop"))
         assertTrue(source.contains("forceLiquidChrome = homeSettings.androidNativeLiquidGlassEnabled"))
-        assertTrue(source.contains("liquidGlassEffectsEnabled = miuixBackdrop != null"))
+        assertTrue(source.contains("liquidGlassEffectsEnabled = true"))
+        assertFalse(source.contains("liquidGlassEffectsEnabled = miuixBackdrop != null"))
     }
 
     private fun loadSource(path: String): String {

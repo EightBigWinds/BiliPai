@@ -185,7 +185,8 @@ internal fun resolveVideoContentTabBarLiquidChromeSpec(
             segmentedControlHeightDp = layoutSpec.segmentedControlHeightDp,
             segmentedControlIndicatorHeightDp = layoutSpec.segmentedControlIndicatorHeightDp,
             labelFontSizeSp = layoutSpec.unselectedTabFontSizeSp,
-            liquidGlassEffectsEnabled = hasBackdrop,
+            // Keep glass chrome path on; missing backdrop only disables refraction sampling.
+            liquidGlassEffectsEnabled = true,
             useTransparentTabRowBackground = false,
         )
     }

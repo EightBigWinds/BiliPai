@@ -143,9 +143,11 @@ fun CommentSegmentedControl(
         indicatorHeight = spec.indicatorHeightDp.dp,
         labelFontSize = 13.sp,
         // Prefer Miuix only — same stack as KernelSuAlignedBottomBar.
+        // Glass chrome must stay on even if backdrop is briefly null; sampling degrades
+        // without page capture, but shell still uses KSU container color (not solid gray).
         miuixBackdrop = miuixBackdrop,
         forceLiquidChrome = homeSettings.androidNativeLiquidGlassEnabled,
-        liquidGlassEffectsEnabled = miuixBackdrop != null,
+        liquidGlassEffectsEnabled = true,
     )
 }
 

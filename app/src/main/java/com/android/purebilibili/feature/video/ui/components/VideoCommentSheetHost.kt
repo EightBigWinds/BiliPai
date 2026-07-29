@@ -782,37 +782,47 @@ internal fun VideoCommentMainList(
 
         CommentFraudDetectingBanner(isDetecting = state.isDetectingFraud)
 
-        if (state.isRepliesLoading && state.replies.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                AdaptiveLoadingIndicator()
-            }
-        } else {
-            Box(modifier = Modifier.fillMaxSize()) {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .miuixLayerBackdrop(commentChromeMiuixBackdrop),
-                    contentPadding = WindowInsets.navigationBars.asPaddingValues()
-                ) {
+        // Keep LazyColumn + page LayerBackdrop always composed. Branching to a bare
+        // loading Box used to unmount the capture layer on sort reload and flash the
+        // liquid sort chrome / nearby glass bars with an empty sample.
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .miuixLayerBackdrop(commentChromeMiuixBackdrop),
+                contentPadding = WindowInsets.navigationBars.asPaddingValues()
+            ) {
+                item {
+                    AppSurface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        color = appearance.composerHintBackgroundColor,
+                        shape = RoundedCornerShape(16.dp),
+                        onClick = onRootCommentClick
+                    ) {
+                        AppText(
+                            text = "说点什么，直接评论 UP 主和大家",
+                            color = appearance.secondaryTextColor,
+                            fontSize = 13.sp,
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+                        )
+                    }
+                }
+
+                if (state.isRepliesLoading && state.replies.isEmpty()) {
                     item {
-                        AppSurface(
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 14.dp, vertical = 8.dp),
-                            color = appearance.composerHintBackgroundColor,
-                            shape = RoundedCornerShape(16.dp),
-                            onClick = onRootCommentClick
+                                .height(200.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            AppText(
-                                text = "说点什么，直接评论 UP 主和大家",
-                                color = appearance.secondaryTextColor,
-                                fontSize = 13.sp,
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
-                            )
+                            AdaptiveLoadingIndicator()
                         }
                     }
-
+                } else {
                     items(
                         items = state.replies,
                         key = { it.rpid },
@@ -862,19 +872,19 @@ internal fun VideoCommentMainList(
                         }
                     }
                 }
-
-                VideoCommentBackToTopButton(
-                    visible = shouldShowBackToTop,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = 20.dp, bottom = 20.dp),
-                    onClick = {
-                        scope.launch {
-                            listState.animateScrollToItem(0)
-                        }
-                    }
-                )
             }
+
+            VideoCommentBackToTopButton(
+                visible = shouldShowBackToTop,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 20.dp, bottom = 20.dp),
+                onClick = {
+                    scope.launch {
+                        listState.animateScrollToItem(0)
+                    }
+                }
+            )
         }
     }
 }

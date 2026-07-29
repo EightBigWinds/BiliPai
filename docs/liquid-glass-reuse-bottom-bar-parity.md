@@ -133,11 +133,14 @@
     - 壳色：`resolveKernelSuBottomBarContainerColor`（半透白/深 0.4，禁止 cardContainer 自研灰）  
     - 指示器采样：`CombinedBackdrop(page, tabsExport)`（与 InstallerX / 底栏相同）  
     - 玻璃开启时可见字中性、主题色只经 export+胶囊透出（idle 也开）  
-    - capture 固定 ExtraLarge lens + vibrancy/blur  
+    - capture 固定 ExtraLarge lens + vibrancy/blur（Miuix 与 Kyant fallback 同用 ExtraSmall blur）  
     - 页面优先 Miuix；Kyant 仅作无 Miuix 时的 fallback，仍用 Combined 拓扑  
+    - **`liquidGlassEffectsEnabled` 不因缺少 page backdrop 关闭**：无采样时壳仍走 KSU 半透色，禁止回退成自研灰 pill  
 11. **评论区等只接线，不自研**：  
     - `rememberMiuixLayerBackdrop()` + `miuixLayerBackdrop`  
     - `BottomBarLiquidSegmentedControl(miuixBackdrop = …)` / `kernelSuMiuixFloatingDockSurface`  
+    - 排序切换 **stale-while-revalidate**：保留旧列表直到新排序首屏返回，避免底输入条 / 排序玻璃重录空列表闪灰  
+    - 评论 LazyColumn + page capture **常驻**（loading/empty 写在 list item 内），禁止整树卸下载入态
 
 ## 9. 后续扩组件与维护
 

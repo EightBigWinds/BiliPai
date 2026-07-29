@@ -124,6 +124,7 @@ import com.android.purebilibili.data.model.response.SpaceAggregateArchiveItem
 import com.android.purebilibili.data.model.response.SpaceDynamicItem
 import com.android.purebilibili.data.model.response.SpaceVideoItem
 import com.android.purebilibili.feature.dynamic.DynamicDeleteAction
+import com.android.purebilibili.core.ui.AppChromeSizeTokens
 import com.android.purebilibili.feature.home.components.BottomBarLiquidSegmentedControl
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 
@@ -1407,9 +1408,6 @@ private fun ProfileSpaceTabs(
     val context = LocalContext.current
     val layoutTokens = remember { resolveProfileLayoutTokens() }
     val chromeSpec = remember { resolveProfileSpaceTabChromeSpec() }
-    val rowContainerShape = remember(chromeSpec.rowCornerRadiusDp) {
-        RoundedCornerShape(chromeSpec.rowCornerRadiusDp.dp)
-    }
     val homeSettings by SettingsManager
         .getHomeSettings(context)
         .collectAsStateWithLifecycle(initialValue = HomeSettings())
@@ -1429,15 +1427,14 @@ private fun ProfileSpaceTabs(
             onSelected = { index -> tabs.getOrNull(index)?.let { onTabSelected(it.tab) } },
             modifier = tabModifier
                 .padding(vertical = 6.dp)
-                .background(contentChrome.cardContainerColor, rowContainerShape)
                 .padding(horizontal = chromeSpec.controlHorizontalInsetDp.dp, vertical = 8.dp),
-            // Default 58/56 bottom-bar dock — no compact self-tuned heights.
+            // Flexible in-content geometry; rendering uses KernelSu shell/indicator path
+            // (no solid card underlay / self-tuned gray overrides).
+            height = AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp.dp,
+            indicatorHeight = AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp.dp,
             labelFontSize = 16.sp,
             forceLiquidChrome = homeSettings.androidNativeLiquidGlassEnabled,
-            containerColorOverride = contentChrome.surfaceColor,
-            selectedTextColorOverride = contentChrome.onSurfaceColor,
-            unselectedTextColorOverride = contentChrome.onSurfaceVariantColor,
-            indicatorIdleSurfaceColorOverride = contentChrome.primaryColor.copy(alpha = 0.14f)
+            liquidGlassEffectsEnabled = true,
         )
         return
     }

@@ -284,7 +284,8 @@ class BottomBarLiquidSegmentedControlStructureTest {
         assertTrue(source.contains("resolveBottomBarRefractionMotionProfile("))
         assertTrue(source.contains(".kernelSuFloatingDockSurface("))
         assertTrue(source.contains("blurRadius = androidNativeTuning.shellBlurRadiusDp.dp"))
-        assertTrue(source.contains("blur(androidNativeTuning.shellBlurRadiusDp.dp.toPx())"))
+        // Capture path matches Miuix/KSU ExtraSmall blur (not a separate shellBlur radius).
+        assertTrue(source.contains("blur(AppSpacingTokens.ExtraSmall.toPx())"))
         assertFalse(source.contains("blur(8.dp.toPx())"))
         assertFalse(source.contains(".border("))
         assertTrue(source.contains("BOTTOM_BAR_LIQUID_SEGMENTED_CONTROL_HEIGHT_DP = 58"))
@@ -443,20 +444,28 @@ class BottomBarLiquidSegmentedControlStructureTest {
             "app/src/main/java/com/android/purebilibili/feature/video/ui/components/VideoCommentSheetHost.kt"
         )
 
-        assertTrue(commonList.contains("val commonListChromeBackdrop = rememberLayerBackdrop()"))
-        assertTrue(commonList.contains(".layerBackdrop(commonListChromeBackdrop)"))
-        assertTrue(commonList.contains("backdrop = commonListChromeBackdrop"))
+        assertTrue(commonList.contains("val commonListChromeMiuixBackdrop = rememberMiuixLayerBackdrop()"))
+        assertTrue(commonList.contains(".miuixLayerBackdrop(commonListChromeMiuixBackdrop)"))
+        assertTrue(commonList.contains("miuixBackdrop = commonListChromeMiuixBackdrop"))
         // Comment / video content chrome uses Miuix only (same stack as floating bottom bar).
         assertTrue(videoContent.contains("val videoContentChromeMiuixBackdrop = rememberMiuixLayerBackdrop()"))
         assertTrue(videoContent.contains("chromeMiuixBackdrop = videoContentChromeMiuixBackdrop"))
         assertTrue(videoContent.contains("miuixBackdrop = videoContentChromeMiuixBackdrop"))
         assertTrue(videoContent.contains("Column(modifier = modifier.fillMaxSize())"))
         assertTrue(commentSortBar.contains("miuixBackdrop = miuixBackdrop"))
+        assertTrue(commentSortBar.contains("liquidGlassEffectsEnabled = true"))
+        assertFalse(commentSortBar.contains("liquidGlassEffectsEnabled = miuixBackdrop != null"))
         assertFalse(commentSortBar.contains("com.kyant.backdrop"))
         assertTrue(commentSheetHost.contains("val commentChromeMiuixBackdrop = rememberMiuixLayerBackdrop()"))
         assertTrue(commentSheetHost.contains(".miuixLayerBackdrop(commentChromeMiuixBackdrop)"))
+        // LazyColumn stays composed during empty/loading so page capture never unmounts.
+        assertFalse(
+            commentSheetHost.contains("if (state.isRepliesLoading && state.replies.isEmpty()) {\n            Box(modifier = Modifier.fillMaxSize()"),
+        )
         assertTrue(iosSegmented.contains("backdrop: Backdrop? = null"))
+        assertTrue(iosSegmented.contains("miuixBackdrop: MiuixBackdrop? = null") || iosSegmented.contains("miuixBackdrop:"))
         assertTrue(iosSegmented.contains("backdrop = backdrop"))
+        assertTrue(iosSegmented.contains("miuixBackdrop = miuixBackdrop"))
     }
 
     @Test

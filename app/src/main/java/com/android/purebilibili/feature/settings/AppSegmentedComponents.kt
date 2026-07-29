@@ -28,6 +28,7 @@ import com.android.purebilibili.core.ui.rememberAppSegmentedControlPolicy
 import com.android.purebilibili.core.ui.AppChromeSizeTokens
 import com.android.purebilibili.feature.home.components.BottomBarLiquidSegmentedControl
 import com.kyant.backdrop.Backdrop
+import top.yukonga.miuix.kmp.blur.Backdrop as MiuixBackdrop
 
 @Composable
 internal fun <T> AppSegmentedPreference(
@@ -83,6 +84,8 @@ internal fun <T> AppSegmentedControl(
     indicatorHeight: Dp = AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp.dp,
     labelFontSize: TextUnit = 14.sp,
     backdrop: Backdrop? = null,
+    /** Preferred page capture — same Miuix stack as KernelSuAlignedBottomBar. */
+    miuixBackdrop: MiuixBackdrop? = null,
     tapPressRefractionEnabled: Boolean = true,
     containerColorOverride: Color? = null,
     indicatorIdleSurfaceColorOverride: Color? = null,
@@ -120,6 +123,7 @@ internal fun <T> AppSegmentedControl(
             indicatorHeight = indicatorHeight,
             labelFontSize = labelFontSize,
             backdrop = backdrop,
+            miuixBackdrop = miuixBackdrop,
             tapPressRefractionEnabled = tapPressRefractionEnabled,
             containerColorOverride = containerColorOverride,
             indicatorIdleSurfaceColorOverride = indicatorIdleSurfaceColorOverride,
@@ -139,6 +143,7 @@ private fun <T> AppLiquidSegmentedControlHost(
     indicatorHeight: Dp,
     labelFontSize: TextUnit,
     backdrop: Backdrop?,
+    miuixBackdrop: MiuixBackdrop?,
     tapPressRefractionEnabled: Boolean,
     containerColorOverride: Color?,
     indicatorIdleSurfaceColorOverride: Color?,
@@ -148,7 +153,7 @@ private fun <T> AppLiquidSegmentedControlHost(
     val longestLabelLength = options.maxOfOrNull { it.label.length } ?: 0
     val spec = resolveAppLiquidSegmentedControlSpec(
         itemCount = options.size,
-        hasExternalBackdrop = backdrop != null,
+        hasExternalBackdrop = miuixBackdrop != null || backdrop != null,
         longestLabelLength = longestLabelLength,
     )
     // Defaults use in-content sizes; when caller still passes them (or pure defaults),
@@ -178,6 +183,7 @@ private fun <T> AppLiquidSegmentedControlHost(
         indicatorHeight = resolvedIndicatorHeight,
         labelFontSize = resolvedLabelFontSize,
         backdrop = backdrop,
+        miuixBackdrop = miuixBackdrop,
         forceLiquidChrome = forceLiquidIndicator,
         liquidGlassEffectsEnabled = spec.liquidGlassEffectsEnabled,
         tapPressRefractionEnabled = resolvedTapPressRefractionEnabled,

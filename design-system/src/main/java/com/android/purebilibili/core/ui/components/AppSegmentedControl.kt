@@ -84,6 +84,9 @@ fun resolveAppLiquidSegmentedControlSpec(
     longestLabelLength: Int = 0,
 ): AppLiquidSegmentedControlSpec {
     // Geometry: in-content compact dock (flexible). Rendering still uses bottom-bar indicator path.
+    // Glass effects stay enabled even without a page LayerBackdrop: shell falls back to the
+    // KernelSu container tint instead of a self-tuned solid gray pill. Backdrop only enables
+    // refraction sampling, not the chrome path itself.
     return AppLiquidSegmentedControlSpec(
         itemWidthDp = if (itemCount >= 4) 56 else 66,
         heightDp = AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp,
@@ -92,7 +95,7 @@ fun resolveAppLiquidSegmentedControlSpec(
             optionCount = itemCount,
             longestLabelLength = longestLabelLength,
         ).toInt(),
-        liquidGlassEffectsEnabled = hasExternalBackdrop,
+        liquidGlassEffectsEnabled = true,
         // Keep bottom-bar press refraction (same KernelSu indicator path).
         tapPressRefractionEnabled = true,
     )

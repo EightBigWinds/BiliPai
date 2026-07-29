@@ -154,8 +154,8 @@ import com.android.purebilibili.feature.video.player.PlaylistSession
 import com.android.purebilibili.core.util.resolveScrollToTopPlan
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import top.yukonga.miuix.kmp.blur.layerBackdrop as miuixLayerBackdrop
+import top.yukonga.miuix.kmp.blur.rememberLayerBackdrop as rememberMiuixLayerBackdrop
 
 internal enum class FavoriteContentMode {
     BASE_LIST,
@@ -545,7 +545,8 @@ fun CommonListScreen(
 
     // [Fix] 这里的模糊冲突核心：顶栏需要自己的独立 HazeState
     val localHazeState = com.android.purebilibili.core.ui.blur.rememberRecoverableHazeState()
-    val commonListChromeBackdrop = rememberLayerBackdrop()
+    // Miuix page LayerBackdrop — same stack as KernelSuAlignedBottomBar.
+    val commonListChromeMiuixBackdrop = rememberMiuixLayerBackdrop()
 
     // 🔍 搜索状态
     var searchQuery by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf("") }
@@ -798,7 +799,7 @@ fun CommonListScreen(
             // [Haze Audit] 全局源已在 AppNavigation 根层提供，这里仅保留本地源
             val contentModifier = Modifier
                 .fillMaxSize()
-                .layerBackdrop(commonListChromeBackdrop)
+                .miuixLayerBackdrop(commonListChromeMiuixBackdrop)
                 .hazeSourceCompat(state = localHazeState)
 
             Box(modifier = contentModifier) {
@@ -1283,7 +1284,7 @@ fun CommonListScreen(
                                     height = historyFilterChrome.heightDp.dp,
                                     indicatorHeight = historyFilterChrome.indicatorHeightDp.dp,
                                     labelFontSize = historyFilterChrome.labelFontSizeSp.sp,
-                                    backdrop = commonListChromeBackdrop,
+                                    miuixBackdrop = commonListChromeMiuixBackdrop,
                                     forceLiquidChrome = homeSettings.androidNativeLiquidGlassEnabled,
                                     liquidGlassEffectsEnabled = true,
                                     dragSelectionEnabled = historyFilterChrome.dragSelectionEnabled,
@@ -1337,7 +1338,7 @@ fun CommonListScreen(
                             height = favoriteHeaderLayout.browseToggleHeightDp.dp,
                             indicatorHeight = favoriteHeaderLayout.browseToggleIndicatorHeightDp.dp,
                             labelFontSize = favoriteHeaderLayout.browseToggleLabelFontSizeSp.sp,
-                            backdrop = commonListChromeBackdrop,
+                            miuixBackdrop = commonListChromeMiuixBackdrop,
                             // Default true: same bottom-bar press refraction.
                             onSelectionChange = { section ->
                                 favoriteBrowseSection = section
