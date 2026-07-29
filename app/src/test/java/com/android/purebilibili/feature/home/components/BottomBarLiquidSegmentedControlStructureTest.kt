@@ -292,10 +292,16 @@ class BottomBarLiquidSegmentedControlStructureTest {
         assertTrue(source.contains("resolveSharedLiquidIndicatorPanelOffsetPx("))
         assertTrue(source.contains("AppSpacingTokens.ExtraSmall.toPx()"))
         assertTrue(source.contains("resolveBottomBarItemMotionVisual("))
-        assertFalse(source.contains("rememberCombinedBackdrop("))
+        // Same InstallerX topology as KernelSuAlignedBottomBar.
+        assertTrue(source.contains("rememberMiuixCombinedBackdrop(miuixBackdrop, tabsMiuixBackdrop)"))
+        assertTrue(source.contains("rememberCombinedBackdrop(backdrop, tabsBackdrop)"))
+        assertTrue(source.contains("resolveKernelSuBottomBarContainerColor("))
+        assertTrue(source.contains("val useGlassColorPath = liquidGlassEnabled"))
+        assertTrue(source.contains("contentBackdrop = miuixIndicatorContentBackdrop"))
+        assertTrue(source.contains("contentBackdrop = kyantIndicatorContentBackdrop"))
+        assertTrue(source.contains("KernelSuMiuixBottomBarIndicatorLayer("))
         assertFalse(source.contains("backdrop ?: tabsBackdrop"))
         assertFalse(source.contains("containerBackdrop = backdrop ?: tabsBackdrop"))
-        assertTrue(source.contains("shouldDrawSegmentedControlExportCaptureBackdrop("))
         assertTrue(source.contains("drawBackdrop("))
         assertTrue(source.contains("resolveBottomBarBackdropPresetCaptureLens("))
         assertTrue(source.contains("resolveBottomBarBackdropPresetIndicatorLens("))
@@ -383,10 +389,9 @@ class BottomBarLiquidSegmentedControlStructureTest {
         // Visible labels must be composed BEFORE the capsule so theme color shows through glass.
         assertTrue(visibleLabelsIndex >= 0)
         assertTrue(visibleLabelsIndex < indicatorIndex)
-        assertTrue(source.contains("contentBackdrop = tabsBackdrop"))
         assertTrue(
             source.contains("backdrop = backdrop,"),
-            "Indicator must sample external page backdrop only; never CombinedBackdrop/tabs self-capture"
+            "Kyant fallback still receives external page backdrop"
         )
         assertFalse(source.contains("val indicatorPolicy = remember(itemCount)"))
         assertFalse(source.contains("resolveBottomBarIndicatorPolicy(itemCount = itemCount)"))

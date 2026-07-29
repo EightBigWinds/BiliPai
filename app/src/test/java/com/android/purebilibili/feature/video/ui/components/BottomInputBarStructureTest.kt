@@ -36,7 +36,7 @@ class BottomInputBarStructureTest {
         assertFalse(source.contains("kernelSuFloatingDockSurface("))
         assertTrue(source.contains("drawShellLens = false"))
         assertTrue(source.contains("resolveSharedBottomBarCapsuleShape()"))
-        assertTrue(source.contains("resolveAndroidNativeFloatingBottomBarContainerColor("))
+        assertTrue(source.contains("resolveKernelSuBottomBarContainerColor("))
         assertTrue(
             source.contains("miuixBackdrop: MiuixLayerBackdrop? = null") ||
                 source.contains("miuixBackdrop: MiuixBackdrop? = null")

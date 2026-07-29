@@ -42,7 +42,6 @@ import com.android.purebilibili.core.store.resolveGlobalLiquidGlassReuseEnabled
 import com.android.purebilibili.core.theme.calculateContrastRatio
 import com.android.purebilibili.core.ui.AppSurfaceTokens
 import com.android.purebilibili.core.ui.adaptive.MotionTier
-import com.android.purebilibili.core.ui.blur.currentUnifiedBlurIntensity
 import com.android.purebilibili.core.ui.rememberAppBookmarkIcon
 import com.android.purebilibili.core.ui.rememberAppCoinIcon
 import com.android.purebilibili.core.ui.rememberAppLikeFilledIcon
@@ -50,8 +49,8 @@ import com.android.purebilibili.core.ui.rememberAppLikeIcon
 import com.android.purebilibili.core.ui.rememberAppShareIcon
 import com.android.purebilibili.feature.home.components.kernelSuMiuixFloatingDockSurface
 import com.android.purebilibili.feature.home.components.resolveAndroidNativeBottomBarTuning
-import com.android.purebilibili.feature.home.components.resolveAndroidNativeFloatingBottomBarContainerColor
 import com.android.purebilibili.feature.home.components.resolveBottomBarDarkTheme
+import com.android.purebilibili.feature.home.components.resolveKernelSuBottomBarContainerColor
 import com.android.purebilibili.feature.home.components.resolveSharedBottomBarCapsuleShape
 import top.yukonga.miuix.kmp.blur.Backdrop as MiuixBackdrop
 import top.yukonga.miuix.kmp.blur.LayerBackdrop as MiuixLayerBackdrop
@@ -199,23 +198,16 @@ private fun FloatingLiquidBottomInputBar(
     onShareClick: () -> Unit,
     onCommentClick: () -> Unit,
 ) {
-    val blurIntensity = currentUnifiedBlurIntensity()
-    val isDarkTheme = resolveBottomBarDarkTheme(AppSurfaceTokens.chromeBackground())
+    val isDarkTheme = resolveBottomBarDarkTheme(AppSurfaceTokens.background())
     val tuning = remember(isDarkTheme) {
         resolveAndroidNativeBottomBarTuning(
             blurEnabled = true,
             darkTheme = isDarkTheme
         )
     }
-    val containerColor = resolveAndroidNativeFloatingBottomBarContainerColor(
-        surfaceColor = MaterialTheme.colorScheme.surfaceContainer,
-        tuning = tuning,
-        glassEnabled = true,
-        blurEnabled = true,
-        blurIntensity = blurIntensity,
-        liquidGlassPreset = homeSettings.bottomBarLiquidGlassPreset
-    )
-    // Match home search capsule: same glass material, slightly clearer so the field reads as a control.
+    // Exact KernelSu floating bottom-bar shell tint (no cardContainer self-tuned gray).
+    val containerColor = resolveKernelSuBottomBarContainerColor(darkTheme = isDarkTheme)
+    // Input field slightly clearer than the outer dock, still on the same tint base.
     val commentFieldContainerColor = containerColor.copy(
         alpha = (containerColor.alpha * 0.72f).coerceIn(0.18f, 0.55f)
     )
