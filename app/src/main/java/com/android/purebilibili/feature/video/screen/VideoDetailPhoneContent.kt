@@ -48,8 +48,8 @@ import com.android.purebilibili.feature.video.viewmodel.VideoEngagementUiState
 import com.android.purebilibili.feature.video.viewmodel.VideoPlaybackUiState
 import com.android.purebilibili.feature.video.viewmodel.withEngagementUiState
 import com.android.purebilibili.feature.video.player.PlaylistItem
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import top.yukonga.miuix.kmp.blur.layerBackdrop as miuixLayerBackdrop
+import top.yukonga.miuix.kmp.blur.rememberLayerBackdrop as rememberMiuixLayerBackdrop
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
@@ -158,8 +158,8 @@ internal fun VideoDetailPhoneSuccessContentLayer(
                             androidNativeLiquidGlassEnabled = androidNativeLiquidGlassEnabled
                         )
                         // Capture scrolling detail content only; BottomInputBar stays outside
-                        // so drawBackdrop does not self-sample (same contract as tab chrome).
-                        val bottomInputBarBackdrop = rememberLayerBackdrop()
+                        // so Miuix drawBackdrop does not self-sample (same contract as bottom bar).
+                        val bottomInputBarMiuixBackdrop = rememberMiuixLayerBackdrop()
                         val showExternalPlaylistQueueBarOnCurrentTab =
                             shouldShowExternalPlaylistQueueBarOnContentTab(
                                 queueAvailable = shouldShowExternalPlaylistQueueBar,
@@ -188,7 +188,7 @@ internal fun VideoDetailPhoneSuccessContentLayer(
                             modifier = if (floatingLiquidBottomInputBar) {
                                 Modifier
                                     .fillMaxSize()
-                                    .layerBackdrop(bottomInputBarBackdrop)
+                                    .miuixLayerBackdrop(bottomInputBarMiuixBackdrop)
                             } else {
                                 Modifier.fillMaxSize()
                             }
@@ -352,8 +352,8 @@ internal fun VideoDetailPhoneSuccessContentLayer(
                                     android.util.Log.d("VideoDetailScreen", "Comment input clicked")
                                     playbackActions.openRootCommentComposer()
                                 },
-                                backdrop = if (floatingLiquidBottomInputBar) {
-                                    bottomInputBarBackdrop
+                                miuixBackdrop = if (floatingLiquidBottomInputBar) {
+                                    bottomInputBarMiuixBackdrop
                                 } else {
                                     null
                                 }

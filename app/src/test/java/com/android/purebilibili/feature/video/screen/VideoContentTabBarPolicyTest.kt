@@ -100,15 +100,16 @@ class VideoContentTabBarPolicyTest {
     }
 
     @Test
-    fun `video content section wires chrome backdrop into tab and comment segmented controls`() {
+    fun `video content section wires Miuix chrome backdrop into tab and comment segmented controls`() {
         val source = loadSource(
             "app/src/main/java/com/android/purebilibili/feature/video/screen/VideoContentSection.kt"
         )
 
-        assertTrue(source.contains("val videoContentChromeBackdrop = rememberLayerBackdrop()"))
-        assertTrue(source.contains("chromeBackdrop = videoContentChromeBackdrop"))
-        assertTrue(source.contains("backdrop = videoContentChromeBackdrop"))
-        assertTrue(source.contains("backdrop = chromeBackdrop"))
+        assertTrue(source.contains("val videoContentChromeMiuixBackdrop = rememberMiuixLayerBackdrop()"))
+        assertTrue(source.contains("chromeMiuixBackdrop = videoContentChromeMiuixBackdrop"))
+        assertTrue(source.contains("miuixBackdrop = videoContentChromeMiuixBackdrop"))
+        assertTrue(source.contains("miuixBackdrop = chromeMiuixBackdrop") || source.contains("miuixLayerBackdrop(chromeMiuixBackdrop)"))
+        assertFalse(source.contains("com.kyant.backdrop"))
         assertTrue(source.contains("Column(modifier = modifier.fillMaxSize())"))
         assertTrue(
             source.contains(
@@ -123,11 +124,12 @@ class VideoContentTabBarPolicyTest {
             .substringAfter("HorizontalPager(")
             .substringBefore(") { page ->")
         assertFalse(
-            pagerBlock.contains("layerBackdrop"),
+            pagerBlock.contains("layerBackdrop") || pagerBlock.contains("miuixLayerBackdrop"),
             "Pager must not capture backdrop; segmented controls inside would self-sample and overflow RenderThread stack on MIUI"
         )
         assertTrue(source.contains("forceLiquidChrome = homeSettings.androidNativeLiquidGlassEnabled"))
         assertTrue(source.contains("liquidGlassEffectsEnabled = liquidChromeSpec.liquidGlassEffectsEnabled"))
+        assertTrue(source.contains("miuixBackdrop = miuixBackdrop"))
     }
 
     @Test

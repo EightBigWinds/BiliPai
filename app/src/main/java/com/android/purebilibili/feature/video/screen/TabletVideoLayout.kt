@@ -53,8 +53,8 @@ import com.android.purebilibili.feature.video.viewmodel.CommentUiState
 import com.android.purebilibili.feature.video.viewmodel.SubReplyUiState
 import com.android.purebilibili.feature.video.viewmodel.VideoEngagementUiState
 import com.android.purebilibili.feature.video.viewmodel.VideoPlaybackUiState
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import top.yukonga.miuix.kmp.blur.layerBackdrop as miuixLayerBackdrop
+import top.yukonga.miuix.kmp.blur.rememberLayerBackdrop as rememberMiuixLayerBackdrop
 import com.android.purebilibili.core.ui.AdaptiveLoadingIndicator
 import io.github.alexzhirkevich.cupertino.icons.CupertinoIcons
 import io.github.alexzhirkevich.cupertino.icons.outlined.*
@@ -559,7 +559,7 @@ private fun TabletSecondaryContent(
                             onAvatarClick = { mid -> mid.toLongOrNull()?.let(onUpClick) ?: Unit }
                         )
                     } else {
-                        val commentChromeBackdrop = rememberLayerBackdrop()
+                        val commentChromeMiuixBackdrop = rememberMiuixLayerBackdrop()
                         Column(modifier = Modifier.fillMaxSize()) {
                             CommentSortFilterBar(
                                 count = commentState.replyCount,
@@ -571,14 +571,14 @@ private fun TabletSecondaryContent(
                                             .setCommentDefaultSortMode(context, mode.apiMode)
                                     }
                                 },
-                                backdrop = commentChromeBackdrop
+                                miuixBackdrop = commentChromeMiuixBackdrop
                             )
                             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                             LazyColumn(
                                 state = listState,
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .layerBackdrop(commentChromeBackdrop),
+                                    .miuixLayerBackdrop(commentChromeMiuixBackdrop),
                                 contentPadding = PaddingValues(8.dp)
                             ) {
                             item {

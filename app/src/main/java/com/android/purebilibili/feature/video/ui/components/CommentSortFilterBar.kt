@@ -4,7 +4,6 @@ import com.android.purebilibili.core.ui.components.AppText
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
@@ -22,11 +21,12 @@ import com.android.purebilibili.core.store.HomeSettings
 import com.android.purebilibili.core.store.SettingsManager
 import com.android.purebilibili.feature.home.components.BottomBarLiquidSegmentedControl
 import com.android.purebilibili.feature.video.viewmodel.CommentSortMode
-import com.kyant.backdrop.Backdrop
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.alexzhirkevich.cupertino.icons.CupertinoIcons
 import io.github.alexzhirkevich.cupertino.icons.filled.Person
+import top.yukonga.miuix.kmp.blur.Backdrop as MiuixBackdrop
+import top.yukonga.miuix.kmp.blur.LayerBackdrop as MiuixLayerBackdrop
 
 internal data class CommentSortSegmentedControlSpec(
     val itemWidthDp: Int,
@@ -37,8 +37,8 @@ internal data class CommentSortSegmentedControlSpec(
 internal fun resolveCommentSortSegmentedControlSpec(itemCount: Int): CommentSortSegmentedControlSpec {
     return CommentSortSegmentedControlSpec(
         itemWidthDp = if (itemCount >= 4) 56 else 66,
-        heightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp,
-        indicatorHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp,
+        heightDp = AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp,
+        indicatorHeightDp = AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp,
     )
 }
 
@@ -52,9 +52,9 @@ internal fun hasCommentSortIndicatorScaleClearance(
 }
 
 /**
- *  评论排序筛选栏
- *  Header: "评论 (123)"
- *  Controls: Segmented Control [按热度 | 按时间]
+ * 评论排序筛选栏
+ * Header: "评论 (123)"
+ * Controls: 底栏同源 Miuix 液态玻璃分段 [最热 | 最新 | ...]
  */
 @Composable
 fun CommentSortFilterBar(
@@ -64,7 +64,8 @@ fun CommentSortFilterBar(
     upOnly: Boolean = false,
     onUpOnlyToggle: () -> Unit = {},
     modifier: Modifier = Modifier,
-    backdrop: Backdrop? = null
+    /** Page content Miuix LayerBackdrop — same stack as home floating bottom bar. */
+    miuixBackdrop: MiuixLayerBackdrop? = null,
 ) {
     val sortModes = remember { CommentSortMode.entries.toList() }
     val appearance = rememberVideoCommentAppearance()
@@ -78,11 +79,10 @@ fun CommentSortFilterBar(
         verticalArrangement = Arrangement.spacedBy(2.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        //  Left: Title
         Row(verticalAlignment = Alignment.CenterVertically) {
             AppText(
                 text = "评论",
-                fontSize = 20.sp, // iOS Large Title style scale
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = appearance.primaryTextColor
             )
@@ -95,40 +95,37 @@ fun CommentSortFilterBar(
             )
         }
 
-        // Right: Sort Control + Only UP Toggle
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Only UP Toggle
             CommentToggleButton(
                 isChecked = upOnly,
                 onToggle = onUpOnlyToggle,
                 icon = CupertinoIcons.Filled.Person
             )
 
-            // Segmented Control
             CommentSegmentedControl(
                 items = sortModes.map { it.label },
                 selectedIndex = sortModes.indexOf(sortMode).coerceAtLeast(0),
                 onScaleChange = { index ->
                     sortModes.getOrNull(index)?.let(onSortModeChange)
                 },
-                backdrop = backdrop
+                miuixBackdrop = miuixBackdrop
             )
         }
     }
 }
 
 /**
- * Bottom-bar matched segmented control.
+ * Bottom-bar Miuix liquid segmented control (no Kyant path).
  */
 @Composable
 fun CommentSegmentedControl(
     items: List<String>,
     selectedIndex: Int,
     onScaleChange: (Int) -> Unit,
-    backdrop: Backdrop? = null
+    miuixBackdrop: MiuixLayerBackdrop? = null
 ) {
     val context = LocalContext.current
     val homeSettings by SettingsManager
@@ -145,16 +142,13 @@ fun CommentSegmentedControl(
         height = spec.heightDp.dp,
         indicatorHeight = spec.indicatorHeightDp.dp,
         labelFontSize = 13.sp,
-        backdrop = backdrop,
+        // Prefer Miuix only — same stack as KernelSuAlignedBottomBar.
+        miuixBackdrop = miuixBackdrop,
         forceLiquidChrome = homeSettings.androidNativeLiquidGlassEnabled,
-        liquidGlassEffectsEnabled = backdrop != null,
-        // Default tapPressRefractionEnabled=true — same as home bottom bar.
+        liquidGlassEffectsEnabled = miuixBackdrop != null,
     )
 }
 
-/**
- * 评论筛选切换按钮
- */
 @Composable
 fun CommentToggleButton(
     isChecked: Boolean,
@@ -172,7 +166,7 @@ fun CommentToggleButton(
     } else {
         appearance.toggleUncheckedContentColor
     }
-    
+
     Box(
         modifier = Modifier
             .size(32.dp)

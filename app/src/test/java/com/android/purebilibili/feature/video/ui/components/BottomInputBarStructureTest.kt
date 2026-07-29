@@ -32,14 +32,19 @@ class BottomInputBarStructureTest {
         assertTrue(source.contains("resolveGlobalLiquidGlassReuseEnabled"))
         assertTrue(source.contains("FloatingLiquidBottomInputBar("))
         assertTrue(source.contains("FloatingLiquidBottomInputBarContentRow("))
-        assertTrue(source.contains(".kernelSuFloatingDockSurface("))
+        assertTrue(source.contains(".kernelSuMiuixFloatingDockSurface("))
+        assertFalse(source.contains("kernelSuFloatingDockSurface("))
         assertTrue(source.contains("drawShellLens = false"))
         assertTrue(source.contains("resolveSharedBottomBarCapsuleShape()"))
         assertTrue(source.contains("resolveAndroidNativeFloatingBottomBarContainerColor("))
-        assertTrue(source.contains("backdrop: Backdrop? = null"))
         assertTrue(
-            source.contains("Same liquid dock surface as home bottom-bar search capsule"),
-            "Comment placeholder should reuse liquid dock surface, not a solid chip"
+            source.contains("miuixBackdrop: MiuixLayerBackdrop? = null") ||
+                source.contains("miuixBackdrop: MiuixBackdrop? = null")
+        )
+        assertFalse(source.contains("com.kyant.backdrop"))
+        assertTrue(
+            source.contains("Same Miuix liquid dock surface as home bottom bar shell"),
+            "Comment placeholder should reuse Miuix bottom-bar dock surface, not a solid chip"
         )
     }
 

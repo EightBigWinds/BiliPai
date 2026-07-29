@@ -92,8 +92,8 @@ import com.android.purebilibili.core.ui.LocalSharedTransitionScope
 import com.android.purebilibili.core.ui.LocalSharedTransitionEnabled
 import com.android.purebilibili.core.ui.transition.LocalVideoCardSharedElementSourceRoute
 import com.android.purebilibili.core.store.SettingsManager
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import top.yukonga.miuix.kmp.blur.layerBackdrop as miuixLayerBackdrop
+import top.yukonga.miuix.kmp.blur.rememberLayerBackdrop as rememberMiuixLayerBackdrop
 import com.android.purebilibili.core.store.TabletCommentPanelWidthPreset
 import com.android.purebilibili.core.ui.transition.VIDEO_SHARED_COVER_ASPECT_RATIO
 import com.android.purebilibili.core.ui.transition.shouldEnableVideoCoverSharedTransition
@@ -1202,7 +1202,7 @@ private fun CinemaCommentsPane(
             onAvatarClick = { mid -> mid.toLongOrNull()?.let(onUpClick) ?: Unit }
         )
     } else {
-        val commentChromeBackdrop = rememberLayerBackdrop()
+        val commentChromeMiuixBackdrop = rememberMiuixLayerBackdrop()
         Column(modifier = Modifier.fillMaxSize()) {
             CommentSortFilterBar(
                 count = commentState.replyCount,
@@ -1215,14 +1215,14 @@ private fun CinemaCommentsPane(
                 },
                 upOnly = commentState.upOnlyFilter,
                 onUpOnlyToggle = commentActions.toggleUpOnly,
-                backdrop = commentChromeBackdrop
+                miuixBackdrop = commentChromeMiuixBackdrop
             )
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             LazyColumn(
                 state = listState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .layerBackdrop(commentChromeBackdrop),
+                    .miuixLayerBackdrop(commentChromeMiuixBackdrop),
                 contentPadding = PaddingValues(bottom = 74.dp)
             ) {
             item {

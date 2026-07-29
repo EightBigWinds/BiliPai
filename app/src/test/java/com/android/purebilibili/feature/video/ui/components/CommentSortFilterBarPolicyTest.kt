@@ -33,15 +33,19 @@ class CommentSortFilterBarPolicyTest {
     }
 
     @Test
-    fun `sort segmented control passes page backdrop into bottom bar renderer`() {
+    fun `sort segmented control passes Miuix page backdrop into bottom bar renderer`() {
         val source = loadSource(
             "app/src/main/java/com/android/purebilibili/feature/video/ui/components/CommentSortFilterBar.kt"
         )
 
-        assertTrue(source.contains("backdrop: Backdrop? = null"))
-        assertTrue(source.contains("backdrop = backdrop"))
+        assertTrue(
+            source.contains("miuixBackdrop: MiuixLayerBackdrop? = null") ||
+                source.contains("miuixBackdrop: MiuixBackdrop? = null")
+        )
+        assertTrue(source.contains("miuixBackdrop = miuixBackdrop"))
+        assertFalse(source.contains("com.kyant.backdrop"))
         assertTrue(source.contains("forceLiquidChrome = homeSettings.androidNativeLiquidGlassEnabled"))
-        assertTrue(source.contains("liquidGlassEffectsEnabled = backdrop != null"))
+        assertTrue(source.contains("liquidGlassEffectsEnabled = miuixBackdrop != null"))
     }
 
     private fun loadSource(path: String): String {

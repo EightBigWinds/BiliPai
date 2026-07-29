@@ -48,8 +48,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.android.purebilibili.core.store.SettingsManager
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import top.yukonga.miuix.kmp.blur.layerBackdrop as miuixLayerBackdrop
+import top.yukonga.miuix.kmp.blur.rememberLayerBackdrop as rememberMiuixLayerBackdrop
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableFloatStateOf
@@ -754,7 +754,7 @@ internal fun VideoCommentMainList(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val appearance = rememberVideoCommentAppearance()
-    val commentChromeBackdrop = rememberLayerBackdrop()
+    val commentChromeMiuixBackdrop = rememberMiuixLayerBackdrop()
     val listState = rememberLazyListState()
     val shouldShowBackToTop by remember(listState) {
         androidx.compose.runtime.derivedStateOf {
@@ -777,7 +777,7 @@ internal fun VideoCommentMainList(
             },
             upOnly = state.upOnlyFilter,
             onUpOnlyToggle = { viewModel.toggleUpOnly() },
-            backdrop = commentChromeBackdrop
+            miuixBackdrop = commentChromeMiuixBackdrop
         )
 
         CommentFraudDetectingBanner(isDetecting = state.isDetectingFraud)
@@ -792,7 +792,7 @@ internal fun VideoCommentMainList(
                     state = listState,
                     modifier = Modifier
                         .fillMaxSize()
-                        .layerBackdrop(commentChromeBackdrop),
+                        .miuixLayerBackdrop(commentChromeMiuixBackdrop),
                     contentPadding = WindowInsets.navigationBars.asPaddingValues()
                 ) {
                     item {

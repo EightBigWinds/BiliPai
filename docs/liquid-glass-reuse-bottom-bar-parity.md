@@ -128,7 +128,21 @@
    - 浮底栏几何：`FloatingBottomBarSegmented* = 58/56`（仅真底栏）  
    - 内容区几何：`InContentLiquidSegmented* = 40/32`（评论/简介 Tab 等可按场景覆盖）  
    - 指示器 lens / 速度形变 / Combined 采样必须跟底栏同源；禁止自绘 solid 选中 pill  
-   - `tapPressRefractionEnabled` 默认 `true`（与底栏 press 路径一致）
+   - `tapPressRefractionEnabled` 默认 `true`（与底栏 press 路径一致）  
+10. **评论区液态 chrome 只用 Miuix**（与 `KernelSuAlignedBottomBar` 同栈）：  
+    - 页面：`rememberMiuixLayerBackdrop()` + `Modifier.miuixLayerBackdrop`  
+    - 分段：`BottomBarLiquidSegmentedControl(miuixBackdrop = …)`，**不要**再传 Kyant `backdrop`  
+    - 壳层：`kernelSuMiuixFloatingDockSurface`（评论底输入条）  
+    - 新组件复用清单：创建 Miuix page backdrop → 传 `miuixBackdrop` → 默认走底栏指示器/壳；几何自定 height/indicatorHeight  
+
+## 9. 后续扩组件与维护
+
+推荐模式（最低维护成本）：
+
+1. 在滚动内容上挂 **一个** `rememberMiuixLayerBackdrop()`  
+2. 分段/胶囊只调用 `BottomBarLiquidSegmentedControl` 或 `kernelSuMiuixFloatingDockSurface`  
+3. **禁止**新写 Kyant liquid chrome；Kyant 仅保留历史非评论路径直至迁完  
+4. 尺寸用 `InContentLiquid*` 或场景自定义；渲染参数不要再 fork
 
 ## 6. 曾发现的脱节点（对齐目标）
 

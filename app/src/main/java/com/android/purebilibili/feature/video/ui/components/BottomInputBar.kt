@@ -48,12 +48,13 @@ import com.android.purebilibili.core.ui.rememberAppCoinIcon
 import com.android.purebilibili.core.ui.rememberAppLikeFilledIcon
 import com.android.purebilibili.core.ui.rememberAppLikeIcon
 import com.android.purebilibili.core.ui.rememberAppShareIcon
-import com.android.purebilibili.feature.home.components.kernelSuFloatingDockSurface
+import com.android.purebilibili.feature.home.components.kernelSuMiuixFloatingDockSurface
 import com.android.purebilibili.feature.home.components.resolveAndroidNativeBottomBarTuning
 import com.android.purebilibili.feature.home.components.resolveAndroidNativeFloatingBottomBarContainerColor
 import com.android.purebilibili.feature.home.components.resolveBottomBarDarkTheme
 import com.android.purebilibili.feature.home.components.resolveSharedBottomBarCapsuleShape
-import com.kyant.backdrop.Backdrop
+import top.yukonga.miuix.kmp.blur.Backdrop as MiuixBackdrop
+import top.yukonga.miuix.kmp.blur.LayerBackdrop as MiuixLayerBackdrop
 
 internal const val BOTTOM_INPUT_BAR_PLACEHOLDER_MIN_CONTRAST = 4.5f
 
@@ -101,7 +102,8 @@ fun BottomInputBar(
     onCoinClick: () -> Unit,
     onShareClick: () -> Unit,
     onCommentClick: () -> Unit,
-    backdrop: Backdrop? = null,
+    /** Page content Miuix LayerBackdrop — same stack as home floating bottom bar. */
+    miuixBackdrop: MiuixLayerBackdrop? = null,
 ) {
     val context = LocalContext.current
     val homeSettings by SettingsManager
@@ -114,7 +116,7 @@ fun BottomInputBar(
     if (floatingLiquidGlass) {
         FloatingLiquidBottomInputBar(
             modifier = modifier,
-            backdrop = backdrop,
+            miuixBackdrop = miuixBackdrop,
             homeSettings = homeSettings,
             isLiked = isLiked,
             isFavorited = isFavorited,
@@ -186,7 +188,7 @@ private fun DockedSolidBottomInputBar(
 @Composable
 private fun FloatingLiquidBottomInputBar(
     modifier: Modifier,
-    backdrop: Backdrop?,
+    miuixBackdrop: MiuixLayerBackdrop?,
     homeSettings: HomeSettings,
     isLiked: Boolean,
     isFavorited: Boolean,
@@ -235,9 +237,9 @@ private fun FloatingLiquidBottomInputBar(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .kernelSuFloatingDockSurface(
+                .kernelSuMiuixFloatingDockSurface(
                     shape = shellShape,
-                    backdrop = backdrop,
+                    backdrop = miuixBackdrop,
                     containerColor = containerColor,
                     blurEnabled = true,
                     glassEnabled = true,
@@ -251,7 +253,7 @@ private fun FloatingLiquidBottomInputBar(
         ) {
             FloatingLiquidBottomInputBarContentRow(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-                backdrop = backdrop,
+                miuixBackdrop = miuixBackdrop,
                 commentFieldContainerColor = commentFieldContainerColor,
                 commentFieldShape = shellShape,
                 blurRadius = tuning.shellBlurRadiusDp.dp,
@@ -273,7 +275,7 @@ private fun FloatingLiquidBottomInputBar(
 @Composable
 private fun FloatingLiquidBottomInputBarContentRow(
     modifier: Modifier,
-    backdrop: Backdrop?,
+    miuixBackdrop: MiuixLayerBackdrop?,
     commentFieldContainerColor: Color,
     commentFieldShape: androidx.compose.ui.graphics.Shape,
     blurRadius: Dp,
@@ -298,14 +300,14 @@ private fun FloatingLiquidBottomInputBarContentRow(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Same liquid dock surface as home bottom-bar search capsule (sibling glass, not solid chip).
+        // Same Miuix liquid dock surface as home bottom bar shell.
         Box(
             modifier = Modifier
                 .weight(1f)
                 .height(36.dp)
-                .kernelSuFloatingDockSurface(
+                .kernelSuMiuixFloatingDockSurface(
                     shape = commentFieldShape,
-                    backdrop = backdrop,
+                    backdrop = miuixBackdrop,
                     containerColor = commentFieldContainerColor,
                     blurEnabled = true,
                     glassEnabled = true,
