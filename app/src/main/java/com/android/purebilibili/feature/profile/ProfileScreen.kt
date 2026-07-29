@@ -1431,8 +1431,7 @@ private fun ProfileSpaceTabs(
                 .padding(vertical = 6.dp)
                 .background(contentChrome.cardContainerColor, rowContainerShape)
                 .padding(horizontal = chromeSpec.controlHorizontalInsetDp.dp, vertical = 8.dp),
-            height = 46.dp,
-            indicatorHeight = 40.dp,
+            // Default 58/56 bottom-bar dock — no compact self-tuned heights.
             labelFontSize = 16.sp,
             forceLiquidChrome = homeSettings.androidNativeLiquidGlassEnabled,
             containerColorOverride = contentChrome.surfaceColor,

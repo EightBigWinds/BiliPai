@@ -566,11 +566,8 @@ private fun PopularSubCategorySegmentedControl(
             subCategories.getOrNull(index)?.let(onSubCategoryChange)
         },
         modifier = modifier,
-        height = AppSpacingTokens.TripleExtraLarge,
-        indicatorHeight = AppSpacingTokens.TripleExtraLarge - AppSpacingTokens.Micro,
+        // Default 58/56 bottom-bar dock.
         labelFontSize = MaterialTheme.typography.labelMedium.fontSize,
-        containerHorizontalPadding = AppSpacingTokens.ExtraSmall - AppSpacingTokens.Micro / 2,
-        containerVerticalPadding = AppSpacingTokens.ExtraSmall - AppSpacingTokens.Micro / 2,
         liquidGlassEffectsEnabled = true,
         dragSelectionEnabled = false,
         preferInlineContentStyle = true
@@ -598,11 +595,8 @@ private fun TodayWatchModeSegmentedControl(
         },
         modifier = modifier,
         enabled = enabled,
-        height = AppSpacingTokens.DoubleExtraLarge + AppSpacingTokens.Small + AppSpacingTokens.Micro,
-        indicatorHeight = AppSpacingTokens.DoubleExtraLarge + AppSpacingTokens.Micro,
+        // Default 58/56 bottom-bar dock.
         labelFontSize = MaterialTheme.typography.labelMedium.fontSize,
-        containerHorizontalPadding = AppSpacingTokens.ExtraSmall - AppSpacingTokens.Micro / 2,
-        containerVerticalPadding = AppSpacingTokens.ExtraSmall - AppSpacingTokens.Micro / 2,
         liquidGlassEffectsEnabled = true,
         dragSelectionEnabled = true,
         preferInlineContentStyle = false

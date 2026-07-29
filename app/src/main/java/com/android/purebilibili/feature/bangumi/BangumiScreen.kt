@@ -1080,8 +1080,7 @@ private fun BangumiTypeTabs(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
-        height = 46.dp,
-        indicatorHeight = 40.dp,
+        // Default 58/56 bottom-bar dock.
         labelFontSize = 14.sp,
         dragSelectionEnabled = true,
         preferInlineContentStyle = false

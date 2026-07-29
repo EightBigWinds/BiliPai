@@ -135,12 +135,17 @@ internal fun hasVideoContentTabBarIndicatorScaleClearance(
     containerHeightDp: Int,
     indicatorHeightDp: Int
 ): Boolean {
-    val bottomBarScale = 78f / 56f
-    return containerHeightDp >= indicatorHeightDp * bottomBarScale + 2f
+    // Bottom-bar drag scale is 88/56 and is allowed to overflow the dock (clip=false).
+    // Clearance only needs a non-zero dock; matching KernelSu does not grow the container.
+    return containerHeightDp > 0 && indicatorHeightDp > 0 &&
+        containerHeightDp >= indicatorHeightDp
 }
 
-internal const val VIDEO_CONTENT_LIQUID_DOCK_HEIGHT_DP = 40
-internal const val VIDEO_CONTENT_LIQUID_DOCK_INDICATOR_HEIGHT_DP = 27
+// Exact floating bottom-bar liquid dock (no compact self-tuned variant).
+internal const val VIDEO_CONTENT_LIQUID_DOCK_HEIGHT_DP =
+    com.android.purebilibili.core.ui.AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp
+internal const val VIDEO_CONTENT_LIQUID_DOCK_INDICATOR_HEIGHT_DP =
+    com.android.purebilibili.core.ui.AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp
 internal const val VIDEO_CONTENT_LIQUID_DOCK_LABEL_FONT_SIZE_SP = 14
 
 internal data class VideoContentTabBarLiquidChromeSpec(
@@ -1486,8 +1491,7 @@ private fun VideoContentTabBar(
                 backdrop = backdrop,
                 forceLiquidChrome = homeSettings.androidNativeLiquidGlassEnabled,
                 liquidGlassEffectsEnabled = liquidChromeSpec.liquidGlassEffectsEnabled,
-                // Avoid extra press refraction in this compact in-content chrome.
-                tapPressRefractionEnabled = false,
+                // Keep bottom-bar press refraction when reusing liquid chrome (no self-tuned disable).
             )
 
             // [新增] 恢复画面按钮 (仅在播放器折叠时显示)

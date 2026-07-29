@@ -4,11 +4,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.android.purebilibili.core.theme.AndroidNativeVariant
-import com.android.purebilibili.core.theme.UiPreset
+import com.android.purebilibili.core.ui.AppChromeSizeTokens
 import com.android.purebilibili.core.ui.AppSurfaceTokens
 import com.android.purebilibili.core.ui.rememberAppSegmentedControlPolicy
-import com.android.purebilibili.core.ui.resolveCompactCapsuleChromeSpec
 import com.android.purebilibili.core.ui.renderer.material3.AppMaterial3SegmentedControl
 import com.android.purebilibili.core.ui.renderer.miuix.AppMiuixSegmentedControl
 
@@ -85,20 +83,17 @@ fun resolveAppLiquidSegmentedControlSpec(
     hasExternalBackdrop: Boolean,
     longestLabelLength: Int = 0,
 ): AppLiquidSegmentedControlSpec {
-    val compactChrome = resolveCompactCapsuleChromeSpec(
-        uiPreset = UiPreset.IOS,
-        androidNativeVariant = AndroidNativeVariant.MATERIAL3,
-    )
+    // 1:1 with floating bottom-bar liquid dock — no compact self-tuned heights/refraction.
     return AppLiquidSegmentedControlSpec(
         itemWidthDp = if (itemCount >= 4) 56 else 66,
-        heightDp = compactChrome.primaryHeightDp,
-        indicatorHeightDp = 30,
+        heightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp,
+        indicatorHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp,
         labelFontSizeSp = resolveAppSegmentedLabelFontSizeSp(
             optionCount = itemCount,
             longestLabelLength = longestLabelLength,
         ).toInt(),
         liquidGlassEffectsEnabled = hasExternalBackdrop,
-        tapPressRefractionEnabled = false,
+        tapPressRefractionEnabled = true,
     )
 }
 

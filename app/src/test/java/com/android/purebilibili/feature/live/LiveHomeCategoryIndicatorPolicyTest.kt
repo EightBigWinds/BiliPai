@@ -37,7 +37,7 @@ class LiveHomeCategoryIndicatorPolicyTest {
     }
 
     @Test
-    fun `live home category control follows each chrome density`() {
+    fun `live home category control matches floating bottom bar dock sizes`() {
         val ios = resolveLiveHomeCategorySegmentedControlSpec(
             compactChrome(primaryHeightDp = 44, compactChipHeightDp = 32),
         )
@@ -48,13 +48,9 @@ class LiveHomeCategoryIndicatorPolicyTest {
             compactChrome(primaryHeightDp = 48, compactChipHeightDp = 28),
         )
 
-        assertEquals(44, ios.heightDp)
-        assertEquals(32, ios.indicatorHeightDp)
-        assertEquals(56, md3.heightDp)
-        assertEquals(28, md3.indicatorHeightDp)
-        assertEquals(48, miuix.heightDp)
-        assertEquals(28, miuix.indicatorHeightDp)
         listOf(ios, md3, miuix).forEach { spec ->
+            assertEquals(58, spec.heightDp)
+            assertEquals(56, spec.indicatorHeightDp)
             assertEquals(82, spec.itemWidthDp)
             assertEquals(14, spec.labelFontSizeSp)
             assertEquals(4, spec.containerHorizontalPaddingDp)
@@ -70,8 +66,8 @@ class LiveHomeCategoryIndicatorPolicyTest {
         )
 
         assertEquals(112, spec.itemWidthDp)
-        assertEquals(56, spec.heightDp)
-        assertEquals(28, spec.indicatorHeightDp)
+        assertEquals(58, spec.heightDp)
+        assertEquals(56, spec.indicatorHeightDp)
         assertEquals(16, spec.labelFontSizeSp)
         assertEquals(4, spec.containerHorizontalPaddingDp)
         assertEquals(4, spec.containerVerticalPaddingDp)

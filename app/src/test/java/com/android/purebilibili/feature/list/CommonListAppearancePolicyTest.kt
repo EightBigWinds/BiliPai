@@ -133,8 +133,8 @@ class CommonListAppearancePolicyTest {
         )
 
         assertEquals(44, layout.searchBarHeightDp)
-        assertEquals(44, layout.browseToggleHeightDp)
-        assertEquals(30, layout.browseToggleIndicatorHeightDp)
+        assertEquals(58, layout.browseToggleHeightDp)
+        assertEquals(56, layout.browseToggleIndicatorHeightDp)
         assertEquals(14, layout.browseToggleLabelFontSizeSp)
         assertEquals(32, layout.folderChipMinHeightDp)
         assertTrue(layout.headerBackgroundAlphaMultiplier < 1f)
@@ -152,7 +152,8 @@ class CommonListAppearancePolicyTest {
         )
 
         assertEquals(56, layout.searchBarHeightDp)
-        assertEquals(30, layout.browseToggleIndicatorHeightDp)
+        assertEquals(58, layout.browseToggleHeightDp)
+        assertEquals(56, layout.browseToggleIndicatorHeightDp)
         assertEquals(14, layout.browseToggleLabelFontSizeSp)
         assertEquals(32, layout.folderChipMinHeightDp)
         assertTrue(layout.headerBackgroundAlphaMultiplier < 1f)

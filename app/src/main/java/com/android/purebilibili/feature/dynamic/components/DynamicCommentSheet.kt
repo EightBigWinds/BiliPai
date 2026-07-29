@@ -9,8 +9,6 @@ import com.android.purebilibili.core.ui.AppSpacingTokens
 import com.android.purebilibili.core.ui.AppShapes
 import com.android.purebilibili.core.ui.ContainerLevel
 import com.android.purebilibili.core.ui.AppSurfaceTokens
-import com.android.purebilibili.core.ui.rememberAppSegmentedControlPolicy
-
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,6 +41,7 @@ import com.android.purebilibili.data.model.response.ReplyItem
 import com.android.purebilibili.feature.dynamic.DynamicViewModel
 import com.android.purebilibili.feature.dynamic.resolveDynamicCommentSheetTotalCount
 import com.android.purebilibili.feature.video.ui.components.CommentPictures
+import com.android.purebilibili.feature.video.ui.components.CommentSegmentedControl
 import com.android.purebilibili.feature.video.ui.components.RichCommentText
 import com.android.purebilibili.feature.video.ui.components.FanGroupDecorationBadge
 import com.android.purebilibili.feature.video.ui.components.resolveFanGroupDecorationCardBgs
@@ -331,57 +330,13 @@ private fun DynamicCommentSortControl(
     onSelected: (Int) -> Unit,
 ) {
     if (items.isEmpty()) return
-    val policy = rememberAppSegmentedControlPolicy()
-    val controlSpec = remember { resolveDynamicCommentSortControlSpec() }
-    val safeSelectedIndex = selectedIndex.coerceIn(items.indices)
-    Row(
-        modifier = Modifier
-            .width(controlSpec.itemWidthDp.dp * items.size)
-            .height(controlSpec.heightDp.dp)
-            .clip(RoundedCornerShape(policy.pillCornerRadius))
-            .background(AppSurfaceTokens.surfaceContainer())
-            .padding(AppSpacingTokens.Micro),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        items.forEachIndexed { index, label ->
-            val selected = index == safeSelectedIndex
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(policy.pillCornerRadius))
-                    .background(
-                        if (selected) AppSurfaceTokens.secondaryContainer() else Color.Transparent
-                    )
-                    .clickable { onSelected(index) },
-                contentAlignment = Alignment.Center,
-            ) {
-                AppText(
-                    text = label,
-                    color = if (selected) {
-                        AppSurfaceTokens.onSecondaryContainer()
-                    } else {
-                        AppSurfaceTokens.onSurfaceVariantActions()
-                    },
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
-    }
+    // Reuse the same bottom-bar liquid sort control as video comments — no self-tuned pill.
+    CommentSegmentedControl(
+        items = items,
+        selectedIndex = selectedIndex,
+        onScaleChange = onSelected,
+    )
 }
-
-private data class DynamicCommentSortControlSpec(
-    val itemWidthDp: Int,
-    val heightDp: Int,
-)
-
-private fun resolveDynamicCommentSortControlSpec() = DynamicCommentSortControlSpec(
-    itemWidthDp = 66,
-    heightDp = 40,
-)
 
 /** Inline comments for dynamic detail, rendered by the detail screen's LazyColumn. */
 @Composable

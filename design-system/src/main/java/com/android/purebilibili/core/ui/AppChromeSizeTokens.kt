@@ -9,9 +9,13 @@ object AppChromeSizeTokens {
     val MinimumTouchTarget = 48.dp
     const val CompactControlHeightDp = 44
     const val CompactControlCornerRadiusDp = 20
-    // Keeps bottom-bar matched segmented indicators clear after their visual scale-up.
-    const val BottomBarMatchedSegmentedControlHeightDp = 40
-    const val BottomBarMatchedSegmentedIndicatorHeightDp = 27
+    /**
+     * Exact floating bottom-bar liquid segmented dock sizes.
+     * Reuse surfaces must not invent a smaller dock when global liquid glass is on.
+     * Indicator drag-scale (88/56) is allowed to overflow the dock, same as KernelSu bottom bar.
+     */
+    const val BottomBarMatchedSegmentedControlHeightDp = 58
+    const val BottomBarMatchedSegmentedIndicatorHeightDp = 56
 }
 
 /**

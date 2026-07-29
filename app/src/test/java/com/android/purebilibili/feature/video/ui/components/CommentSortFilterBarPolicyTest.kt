@@ -9,12 +9,12 @@ import kotlin.test.assertTrue
 class CommentSortFilterBarPolicyTest {
 
     @Test
-    fun `sort segmented control leaves room for bottom bar matched indicator scale`() {
+    fun `sort segmented control matches floating bottom bar dock sizes`() {
         val spec = resolveCommentSortSegmentedControlSpec(itemCount = 2)
 
         assertEquals(66, spec.itemWidthDp)
-        assertEquals(40, spec.heightDp)
-        assertEquals(27, spec.indicatorHeightDp)
+        assertEquals(58, spec.heightDp)
+        assertEquals(56, spec.indicatorHeightDp)
         assertTrue(
             hasCommentSortIndicatorScaleClearance(
                 containerHeightDp = spec.heightDp,
@@ -24,13 +24,12 @@ class CommentSortFilterBarPolicyTest {
     }
 
     @Test
-    fun `sort segmented control disables tap press refraction`() {
+    fun `sort segmented control keeps bottom bar tap press refraction`() {
         val source = loadSource(
             "app/src/main/java/com/android/purebilibili/feature/video/ui/components/CommentSortFilterBar.kt"
         )
 
-        assertTrue(source.contains("tapPressRefractionEnabled = false"))
-        assertFalse(source.contains("tapPressRefractionEnabled = true"))
+        assertFalse(source.contains("tapPressRefractionEnabled = false"))
     }
 
     @Test

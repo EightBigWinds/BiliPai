@@ -490,8 +490,7 @@ private fun MyFollowTypeTabs(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
-        height = 44.dp,
-        indicatorHeight = 38.dp,
+        // Default 58/56 bottom-bar dock.
         labelFontSize = 14.sp,
         dragSelectionEnabled = true,
         preferInlineContentStyle = false

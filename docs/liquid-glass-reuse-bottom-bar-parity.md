@@ -123,7 +123,8 @@
 5. **壳层**：只用 `kernelSuFloatingDockSurface` / `kernelSuMiuixFloatingDockSurface` / `homeTopBottomBarMatchedSurface`。  
 6. **纵向滚动材质**：复用底栏 scroll progress 动画时长与 `resolveBottomBarGlassMaterialSpec`，禁止第二套 scroll lift。  
 7. **主题色路径**：玻璃滑动时 visible 中性 + export monochrome + `SrcIn` tint，禁止手绘蓝粉渐变。  
-8. **拓扑例外**（仅 HyperOS 安全）：分段控件禁止 `CombinedBackdrop(page, tabs)` 自采样（会炸 RenderThread）；指示器 `contentBackdrop = tabsCapture`、`backdrop = page`，由 `KernelSuBottomBarIndicatorLayer` 按预设取 content。底栏 Miuix 路径使用 `rememberMiuixCombinedBackdrop` 是唯一 Combined 真相源。
+8. **拓扑例外**（仅 HyperOS 安全）：分段控件禁止 `CombinedBackdrop(page, tabs)` 自采样（会炸 RenderThread）；指示器 `contentBackdrop = tabsCapture`、`backdrop = page`，由 `KernelSuBottomBarIndicatorLayer` 按预设取 content。底栏 Miuix 路径使用 `rememberMiuixCombinedBackdrop` 是唯一 Combined 真相源。  
+9. **尺寸禁止自研紧凑 dock**：`AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp = 58`、`…IndicatorHeightDp = 56`。评论排序、视频简介/评论 Tab、设置分段、直播/空间/番剧/音乐等 **不得** 再写 40/27、44/30、46/40、52/46 等紧凑高度；`tapPressRefractionEnabled` 保持默认 `true`。
 
 ## 6. 曾发现的脱节点（对齐目标）
 

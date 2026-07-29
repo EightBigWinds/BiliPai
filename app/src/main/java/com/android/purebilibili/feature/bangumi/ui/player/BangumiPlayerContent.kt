@@ -82,11 +82,9 @@ fun BangumiPlayerContent(
                     scope.launch { pagerState.animateScrollToPage(index) }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                height = 44.dp,
-                indicatorHeight = 30.dp,
+                // Default 58/56 bottom-bar dock + press refraction.
                 labelFontSize = 15.sp,
                 backdrop = selectionBackdrop,
-                tapPressRefractionEnabled = false,
             )
         }
 

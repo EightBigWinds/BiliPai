@@ -1,6 +1,7 @@
 package com.android.purebilibili.feature.live
 
 import androidx.compose.ui.graphics.Color
+import com.android.purebilibili.core.ui.AppChromeSizeTokens
 import com.android.purebilibili.core.ui.AppTopTabPresentation
 import com.android.purebilibili.core.ui.CompactCapsuleChromeSpec
 
@@ -234,8 +235,9 @@ internal fun resolveLiveInteractionSegmentedControlSpec(
     return LiveInteractionSegmentedControlSpec(
         horizontalPaddingDp = compactChrome.chipHorizontalPaddingDp,
         verticalPaddingDp = compactChrome.standardGapDp,
-        heightDp = compactChrome.primaryHeightDp,
-        indicatorHeightDp = compactChrome.compactChipHeightDp,
+        // Exact floating bottom-bar liquid dock.
+        heightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp,
+        indicatorHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp,
         labelFontSizeSp = 14
     )
 }

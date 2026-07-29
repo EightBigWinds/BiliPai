@@ -14,6 +14,12 @@ class AppChromeSizeTokensTest {
     }
 
     @Test
+    fun `bottom bar matched segmented tokens match floating dock`() {
+        assertEquals(58, AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp)
+        assertEquals(56, AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp)
+    }
+
+    @Test
     fun `ios compact capsule tokens keep global chrome dense and aligned`() {
         val spec = resolveCompactCapsuleChromeSpec(
             uiPreset = UiPreset.IOS,

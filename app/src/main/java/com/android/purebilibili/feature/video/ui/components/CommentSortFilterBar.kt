@@ -46,8 +46,9 @@ internal fun hasCommentSortIndicatorScaleClearance(
     containerHeightDp: Int,
     indicatorHeightDp: Int
 ): Boolean {
-    val bottomBarScale = 78f / 56f
-    return containerHeightDp >= indicatorHeightDp * bottomBarScale + 2f
+    // Same as bottom bar: drag scale may overflow; dock only needs room for the indicator band.
+    return containerHeightDp > 0 && indicatorHeightDp > 0 &&
+        containerHeightDp >= indicatorHeightDp
 }
 
 /**
@@ -147,7 +148,7 @@ fun CommentSegmentedControl(
         backdrop = backdrop,
         forceLiquidChrome = homeSettings.androidNativeLiquidGlassEnabled,
         liquidGlassEffectsEnabled = backdrop != null,
-        tapPressRefractionEnabled = false
+        // Default tapPressRefractionEnabled=true — same as home bottom bar.
     )
 }
 

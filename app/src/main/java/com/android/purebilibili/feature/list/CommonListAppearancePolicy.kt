@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.dp
 import com.android.purebilibili.core.store.HomeSettings
 import com.android.purebilibili.core.store.CommonListHeaderCollapseMode
 import com.android.purebilibili.core.store.resolveHomeHeaderBlurEnabled
+import com.android.purebilibili.core.ui.AppChromeSizeTokens
 import com.android.purebilibili.core.ui.AppTopChromePolicy
 import com.android.purebilibili.core.ui.AppTopTabPresentation
 
@@ -150,8 +151,8 @@ internal fun resolveCommonListFavoriteHeaderLayout(
                 searchBarHeightDp = compactChrome.primaryHeightDp,
                 searchBarHorizontalPaddingDp = 16,
                 searchBarVerticalPaddingDp = 6,
-                browseToggleHeightDp = compactChrome.primaryHeightDp,
-                browseToggleIndicatorHeightDp = 30,
+                browseToggleHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp,
+                browseToggleIndicatorHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp,
                 browseToggleLabelFontSizeSp = 14,
                 browseToggleHorizontalPaddingDp = 16,
                 browseToggleTopPaddingDp = 2,
@@ -169,8 +170,8 @@ internal fun resolveCommonListFavoriteHeaderLayout(
                 searchBarHeightDp = compactChrome.primaryHeightDp,
                 searchBarHorizontalPaddingDp = 16,
                 searchBarVerticalPaddingDp = 6,
-                browseToggleHeightDp = compactChrome.primaryHeightDp,
-                browseToggleIndicatorHeightDp = 30,
+                browseToggleHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp,
+                browseToggleIndicatorHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp,
                 browseToggleLabelFontSizeSp = 14,
                 browseToggleHorizontalPaddingDp = 16,
                 browseToggleTopPaddingDp = 2,
@@ -188,8 +189,8 @@ internal fun resolveCommonListFavoriteHeaderLayout(
                 searchBarHeightDp = compactChrome.primaryHeightDp,
                 searchBarHorizontalPaddingDp = 16,
                 searchBarVerticalPaddingDp = 6,
-                browseToggleHeightDp = compactChrome.primaryHeightDp,
-                browseToggleIndicatorHeightDp = 30,
+                browseToggleHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp,
+                browseToggleIndicatorHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp,
                 browseToggleLabelFontSizeSp = 14,
                 browseToggleHorizontalPaddingDp = 16,
                 browseToggleTopPaddingDp = 2,

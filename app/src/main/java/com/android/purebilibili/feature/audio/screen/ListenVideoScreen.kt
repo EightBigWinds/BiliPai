@@ -196,8 +196,7 @@ internal fun ListenVideoScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
-                height = 52.dp,
-                indicatorHeight = 46.dp,
+                // Default 58/56 bottom-bar dock.
                 preferInlineContentStyle = false,
                 indicatorPositionProvider = {
                     pagerState.currentPage + pagerState.currentPageOffsetFraction

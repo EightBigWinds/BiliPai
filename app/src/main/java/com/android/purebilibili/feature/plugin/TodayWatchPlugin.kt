@@ -503,11 +503,8 @@ private fun TodayWatchPluginModeSegmentedControl(
             modes.getOrNull(index)?.takeIf { it != selectedMode }?.let(onModeChange)
         },
         modifier = modifier,
-        height = 42.dp,
-        indicatorHeight = 34.dp,
+        // Default 58/56 bottom-bar dock.
         labelFontSize = 14.sp,
-        containerHorizontalPadding = 3.dp,
-        containerVerticalPadding = 3.dp,
         liquidGlassEffectsEnabled = true,
         dragSelectionEnabled = true,
         preferInlineContentStyle = false

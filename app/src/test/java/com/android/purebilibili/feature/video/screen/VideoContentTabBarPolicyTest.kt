@@ -80,7 +80,7 @@ class VideoContentTabBarPolicyTest {
     }
 
     @Test
-    fun `info comment tab bar disables tap press refraction`() {
+    fun `info comment tab bar keeps bottom bar tap press refraction`() {
         val source = loadSource(
             "app/src/main/java/com/android/purebilibili/feature/video/screen/VideoContentSection.kt"
         )
@@ -88,7 +88,15 @@ class VideoContentTabBarPolicyTest {
             .substringAfter("fun VideoContentTabBar(")
             .substringBefore("// [新增] 恢复画面按钮")
 
-        assertTrue(tabBarBlock.contains("tapPressRefractionEnabled = false"))
+        assertFalse(tabBarBlock.contains("tapPressRefractionEnabled = false"))
+        assertTrue(tabBarBlock.contains("VIDEO_CONTENT_LIQUID_DOCK_HEIGHT_DP") ||
+            tabBarBlock.contains("liquidChromeSpec.segmentedControlHeightDp"))
+    }
+
+    @Test
+    fun `liquid reuse dock uses exact bottom bar sizes`() {
+        assertEquals(58, VIDEO_CONTENT_LIQUID_DOCK_HEIGHT_DP)
+        assertEquals(56, VIDEO_CONTENT_LIQUID_DOCK_INDICATOR_HEIGHT_DP)
     }
 
     @Test

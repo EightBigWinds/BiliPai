@@ -18,8 +18,9 @@ class HomePopularSubCategorySegmentedControlStructureTest {
         assertTrue(source.contains("dragSelectionEnabled = false"))
         assertTrue(source.contains("liquidGlassEffectsEnabled = true"))
         assertTrue(source.contains("preferInlineContentStyle = true"))
-        assertTrue(source.contains("height = AppSpacingTokens.TripleExtraLarge"))
-        assertTrue(
+        // Uses BottomBarLiquidSegmentedControl defaults (58/56) — no compact self-tuned heights.
+        assertFalse(source.contains("height = AppSpacingTokens.TripleExtraLarge"))
+        assertFalse(
             source.contains(
                 "indicatorHeight = AppSpacingTokens.TripleExtraLarge - AppSpacingTokens.Micro"
             )

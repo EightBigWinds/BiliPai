@@ -33,7 +33,7 @@ class AppChromeSizeTokenAdoptionTest {
     }
 
     @Test
-    fun `first batch segmented chrome no longer keeps oversized local heights`() {
+    fun `liquid reuse segmented chrome uses bottom bar matched size tokens`() {
         val segmentedSources = listOf(
             "app/src/main/java/com/android/purebilibili/feature/live/LivePiliPlusVisualPolicy.kt",
             "app/src/main/java/com/android/purebilibili/feature/live/LiveHomeCategoryIndicatorPolicy.kt",
@@ -42,8 +42,15 @@ class AppChromeSizeTokenAdoptionTest {
 
         segmentedSources.forEach { path ->
             val source = loadSource(path)
-            assertFalse(source.contains("heightDp = 58"), "$path should not keep the old 58dp capsule height")
-            assertFalse(source.contains("indicatorHeightDp = 56"), "$path should not keep the old 56dp indicator height")
+            assertTrue(
+                source.contains("BottomBarMatchedSegmentedControlHeightDp") ||
+                    source.contains("BottomBarMatchedSegmentedIndicatorHeightDp"),
+                "$path should use bottom-bar matched size tokens"
+            )
+            assertFalse(
+                source.contains("heightDp = compactChrome.primaryHeightDp"),
+                "$path should not invent compact dock heights for liquid segmented controls"
+            )
         }
     }
 

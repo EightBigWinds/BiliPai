@@ -3,6 +3,7 @@ package com.android.purebilibili.feature.list
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class FavoriteContentModeResolverTest {
@@ -49,7 +50,7 @@ class FavoriteContentModeResolverTest {
         )
         assertTrue(
             listSource.contains("height = favoriteHeaderLayout.browseToggleHeightDp.dp"),
-            "Favorite page should use the compact header segmented-control height instead of the bottom-bar default"
+            "Favorite page should size the segmented control from the header layout policy"
         )
         assertTrue(
             listSource.contains("indicatorHeight = favoriteHeaderLayout.browseToggleIndicatorHeightDp.dp"),
@@ -59,9 +60,9 @@ class FavoriteContentModeResolverTest {
             listSource.contains("labelFontSize = favoriteHeaderLayout.browseToggleLabelFontSizeSp.sp"),
             "Favorite page should size segmented labels from the header layout policy"
         )
-        assertTrue(
+        assertFalse(
             listSource.contains("tapPressRefractionEnabled = false"),
-            "Favorite page should not inject tap press into liquid-glass refraction because it causes selection ghosting"
+            "Favorite page should keep bottom-bar tap press refraction for liquid glass"
         )
         assertTrue(
             segmentedSource.contains("forceLiquidIndicator: Boolean = false"),

@@ -1,5 +1,6 @@
 package com.android.purebilibili.feature.live
 
+import com.android.purebilibili.core.ui.AppChromeSizeTokens
 import com.android.purebilibili.core.ui.CompactCapsuleChromeSpec
 
 internal data class LiveCategorySegmentedControlSpec(
@@ -24,10 +25,11 @@ internal fun resolveLiveHomeCategorySelectedIndex(
 internal fun resolveLiveHomeCategorySegmentedControlSpec(
     compactChrome: CompactCapsuleChromeSpec,
 ): LiveCategorySegmentedControlSpec {
+    // Heights match floating bottom bar; compactChrome only kept for call-site compatibility.
     return LiveCategorySegmentedControlSpec(
         itemWidthDp = 82,
-        heightDp = compactChrome.primaryHeightDp,
-        indicatorHeightDp = compactChrome.compactChipHeightDp,
+        heightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp,
+        indicatorHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp,
         labelFontSizeSp = 14,
         containerHorizontalPaddingDp = 4,
         containerVerticalPaddingDp = 4,
@@ -66,8 +68,8 @@ internal fun resolveLiveAreaParentSegmentedControlSpec(
 ): LiveCategorySegmentedControlSpec {
     return LiveCategorySegmentedControlSpec(
         itemWidthDp = 112,
-        heightDp = compactChrome.primaryHeightDp,
-        indicatorHeightDp = compactChrome.compactChipHeightDp,
+        heightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp,
+        indicatorHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp,
         labelFontSizeSp = 16,
         containerHorizontalPaddingDp = 4,
         containerVerticalPaddingDp = 4,

@@ -1338,7 +1338,7 @@ fun CommonListScreen(
                             indicatorHeight = favoriteHeaderLayout.browseToggleIndicatorHeightDp.dp,
                             labelFontSize = favoriteHeaderLayout.browseToggleLabelFontSizeSp.sp,
                             backdrop = commonListChromeBackdrop,
-                            tapPressRefractionEnabled = false,
+                            // Default true: same bottom-bar press refraction.
                             onSelectionChange = { section ->
                                 favoriteBrowseSection = section
                                 searchQuery = ""

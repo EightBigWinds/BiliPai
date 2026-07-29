@@ -287,8 +287,7 @@ internal fun MusicPlayerContent(
                             modifier = Modifier
                                 .navigationBarsPadding()
                                 .padding(horizontal = 72.dp, vertical = 8.dp),
-                            height = 52.dp,
-                            indicatorHeight = 46.dp,
+                            // Default 58/56 bottom-bar dock sizes.
                             forceLiquidChrome = true,
                             liquidGlassEffectsEnabled = glassEnabled,
                             preferInlineContentStyle = false,
@@ -675,8 +674,7 @@ private fun MusicPlayModeDock(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 2.dp),
-        height = 52.dp,
-        indicatorHeight = 46.dp,
+        // Default 58/56 bottom-bar dock sizes.
         labelFontSize = 13.sp,
         liquidGlassEffectsEnabled = glassEnabled,
         forceLiquidChrome = true,
