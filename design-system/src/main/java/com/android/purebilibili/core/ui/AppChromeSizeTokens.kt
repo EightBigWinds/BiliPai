@@ -9,13 +9,27 @@ object AppChromeSizeTokens {
     val MinimumTouchTarget = 48.dp
     const val CompactControlHeightDp = 44
     const val CompactControlCornerRadiusDp = 20
+
     /**
-     * Exact floating bottom-bar liquid segmented dock sizes.
-     * Reuse surfaces must not invent a smaller dock when global liquid glass is on.
-     * Indicator drag-scale (88/56) is allowed to overflow the dock, same as KernelSu bottom bar.
+     * Floating home bottom-bar liquid dock geometry (KernelSuAlignedBottomBar).
+     * Only the real bottom bar should hard-require these; embedded chrome must not.
      */
-    const val BottomBarMatchedSegmentedControlHeightDp = 58
-    const val BottomBarMatchedSegmentedIndicatorHeightDp = 56
+    const val FloatingBottomBarSegmentedControlHeightDp = 58
+    const val FloatingBottomBarSegmentedIndicatorHeightDp = 56
+
+    /**
+     * In-content liquid segmented chrome (comment sort, intro/comment tabs, filters).
+     * Geometry is flexible; rendering still uses the bottom-bar indicator path.
+     * Indicator drag-scale (88/56) may slightly overflow — same as the bottom bar.
+     */
+    const val InContentLiquidSegmentedControlHeightDp = 40
+    const val InContentLiquidSegmentedIndicatorHeightDp = 32
+
+    /** @deprecated Prefer [FloatingBottomBarSegmentedControlHeightDp] or [InContentLiquidSegmentedControlHeightDp]. */
+    const val BottomBarMatchedSegmentedControlHeightDp = InContentLiquidSegmentedControlHeightDp
+
+    /** @deprecated Prefer [FloatingBottomBarSegmentedIndicatorHeightDp] or [InContentLiquidSegmentedIndicatorHeightDp]. */
+    const val BottomBarMatchedSegmentedIndicatorHeightDp = InContentLiquidSegmentedIndicatorHeightDp
 }
 
 /**

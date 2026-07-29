@@ -94,9 +94,9 @@ class VideoContentTabBarPolicyTest {
     }
 
     @Test
-    fun `liquid reuse dock uses exact bottom bar sizes`() {
-        assertEquals(58, VIDEO_CONTENT_LIQUID_DOCK_HEIGHT_DP)
-        assertEquals(56, VIDEO_CONTENT_LIQUID_DOCK_INDICATOR_HEIGHT_DP)
+    fun `liquid reuse dock uses flexible in-content sizes`() {
+        assertEquals(40, VIDEO_CONTENT_LIQUID_DOCK_HEIGHT_DP)
+        assertEquals(32, VIDEO_CONTENT_LIQUID_DOCK_INDICATOR_HEIGHT_DP)
     }
 
     @Test

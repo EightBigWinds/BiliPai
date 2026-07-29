@@ -25,11 +25,15 @@ internal fun resolveLiveHomeCategorySelectedIndex(
 internal fun resolveLiveHomeCategorySegmentedControlSpec(
     compactChrome: CompactCapsuleChromeSpec,
 ): LiveCategorySegmentedControlSpec {
-    // Heights match floating bottom bar; compactChrome only kept for call-site compatibility.
+    // Flexible in-content geometry from compact chrome; rendering stays bottom-bar indicator path.
     return LiveCategorySegmentedControlSpec(
         itemWidthDp = 82,
-        heightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp,
-        indicatorHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp,
+        heightDp = compactChrome.primaryHeightDp.coerceAtMost(
+            AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp + 8
+        ),
+        indicatorHeightDp = compactChrome.compactChipHeightDp.coerceAtLeast(
+            AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp - 4
+        ),
         labelFontSizeSp = 14,
         containerHorizontalPaddingDp = 4,
         containerVerticalPaddingDp = 4,
@@ -68,8 +72,12 @@ internal fun resolveLiveAreaParentSegmentedControlSpec(
 ): LiveCategorySegmentedControlSpec {
     return LiveCategorySegmentedControlSpec(
         itemWidthDp = 112,
-        heightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp,
-        indicatorHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp,
+        heightDp = compactChrome.primaryHeightDp.coerceAtMost(
+            AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp + 8
+        ),
+        indicatorHeightDp = compactChrome.compactChipHeightDp.coerceAtLeast(
+            AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp - 4
+        ),
         labelFontSizeSp = 16,
         containerHorizontalPaddingDp = 4,
         containerVerticalPaddingDp = 4,

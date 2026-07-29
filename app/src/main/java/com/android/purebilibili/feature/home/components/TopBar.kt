@@ -1143,13 +1143,19 @@ private fun LightweightHomeTopTabs(
             verticalProgress = 0f,
             pressProgress = topTabPressProgress
         )
-        // Swipe/press lens progress so theme-tinted glass follows the capsule.
-        val topTabIndicatorLensSpec = resolveBottomBarBackdropPresetIndicatorLens(
-            progress = resolveSharedLiquidIndicatorLensProgress(
+        // Bottom-bar parity: indicator lens is press-driven while finger is on the dock.
+        // While pager slides without press, fall back to shared motion helper (no self-tuned lens).
+        val topTabIndicatorLensProgress = if (topTabDragActive || topTabPressProgress > 0.001f) {
+            resolveBottomBarIndicatorLensProgress(pressProgress = topTabPressProgress)
+        } else {
+            resolveSharedLiquidIndicatorLensProgress(
                 pressProgress = topTabPressProgress,
                 motionProgress = topTabMotionProgress,
-                isDragging = topTabDragActive
+                isDragging = false
             )
+        }
+        val topTabIndicatorLensSpec = resolveBottomBarBackdropPresetIndicatorLens(
+            progress = topTabIndicatorLensProgress
         )
         val topTabIndicatorHighlightAlpha = resolveBottomBarLiquidGlassHighlightAlpha(
             motionProgress = topTabBackdropPresetProgress.indicatorProgress
@@ -1254,11 +1260,7 @@ private fun LightweightHomeTopTabs(
                 rememberCombinedBackdrop(backdrop, topTabContentBackdrop)
             else -> topTabContentBackdrop
         }
-        val topTabLensProgress = resolveSharedLiquidIndicatorLensProgress(
-            pressProgress = topTabPressProgress,
-            motionProgress = topTabMotionProgress,
-            isDragging = topTabDragActive
-        )
+        val topTabLensProgress = topTabIndicatorLensProgress
         val useTopTabGlassColorPath = resolveSharedLiquidIndicatorUseGlassColorPath(
             liquidGlassEnabled = shouldUseLiquidGlassIndicator,
             lensProgress = topTabLensProgress

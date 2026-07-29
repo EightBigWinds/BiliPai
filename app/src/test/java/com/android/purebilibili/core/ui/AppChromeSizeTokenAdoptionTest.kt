@@ -33,7 +33,7 @@ class AppChromeSizeTokenAdoptionTest {
     }
 
     @Test
-    fun `liquid reuse segmented chrome uses bottom bar matched size tokens`() {
+    fun `liquid reuse segmented chrome keeps flexible geometry with bottom-bar rendering`() {
         val segmentedSources = listOf(
             "app/src/main/java/com/android/purebilibili/feature/live/LivePiliPlusVisualPolicy.kt",
             "app/src/main/java/com/android/purebilibili/feature/live/LiveHomeCategoryIndicatorPolicy.kt",
@@ -43,13 +43,14 @@ class AppChromeSizeTokenAdoptionTest {
         segmentedSources.forEach { path ->
             val source = loadSource(path)
             assertTrue(
-                source.contains("BottomBarMatchedSegmentedControlHeightDp") ||
-                    source.contains("BottomBarMatchedSegmentedIndicatorHeightDp"),
-                "$path should use bottom-bar matched size tokens"
+                source.contains("InContentLiquidSegmented") ||
+                    source.contains("compactChrome.primaryHeightDp") ||
+                    source.contains("compactChrome.compactChipHeightDp"),
+                "$path should size liquid chrome flexibly (in-content tokens or compact chrome)"
             )
             assertFalse(
-                source.contains("heightDp = compactChrome.primaryHeightDp"),
-                "$path should not invent compact dock heights for liquid segmented controls"
+                source.contains("FloatingBottomBarSegmentedControlHeightDp"),
+                "$path must not force floating bottom-bar 58dp geometry on in-content chrome"
             )
         }
     }

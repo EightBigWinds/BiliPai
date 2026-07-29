@@ -98,7 +98,7 @@ class LivePiliPlusVisualPolicyTest {
     }
 
     @Test
-    fun `interaction segmented control matches floating bottom bar dock sizes`() {
+    fun `interaction segmented control uses flexible in-content geometry`() {
         val spec = resolveLiveInteractionSegmentedControlSpec(
             compactChrome(
                 primaryHeightDp = 44,
@@ -110,13 +110,13 @@ class LivePiliPlusVisualPolicyTest {
 
         assertEquals(12, spec.horizontalPaddingDp)
         assertEquals(8, spec.verticalPaddingDp)
-        assertEquals(58, spec.heightDp)
-        assertEquals(56, spec.indicatorHeightDp)
+        assertEquals(44, spec.heightDp)
+        assertEquals(32, spec.indicatorHeightDp)
         assertEquals(14, spec.labelFontSizeSp)
     }
 
     @Test
-    fun `interaction segmented control keeps bottom bar dock across chrome variants`() {
+    fun `interaction segmented control follows chrome density within in-content caps`() {
         val md3 = resolveLiveInteractionSegmentedControlSpec(
             compactChrome(
                 primaryHeightDp = 56,
@@ -134,11 +134,11 @@ class LivePiliPlusVisualPolicyTest {
             ),
         )
 
-        assertEquals(58, md3.heightDp)
-        assertEquals(56, md3.indicatorHeightDp)
+        assertEquals(48, md3.heightDp)
+        assertEquals(28, md3.indicatorHeightDp)
         assertEquals(16, md3.horizontalPaddingDp)
-        assertEquals(58, miuix.heightDp)
-        assertEquals(56, miuix.indicatorHeightDp)
+        assertEquals(48, miuix.heightDp)
+        assertEquals(28, miuix.indicatorHeightDp)
         assertEquals(12, miuix.horizontalPaddingDp)
     }
 

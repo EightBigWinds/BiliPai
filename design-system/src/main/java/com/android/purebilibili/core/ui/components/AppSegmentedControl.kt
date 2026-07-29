@@ -83,16 +83,17 @@ fun resolveAppLiquidSegmentedControlSpec(
     hasExternalBackdrop: Boolean,
     longestLabelLength: Int = 0,
 ): AppLiquidSegmentedControlSpec {
-    // 1:1 with floating bottom-bar liquid dock — no compact self-tuned heights/refraction.
+    // Geometry: in-content compact dock (flexible). Rendering still uses bottom-bar indicator path.
     return AppLiquidSegmentedControlSpec(
         itemWidthDp = if (itemCount >= 4) 56 else 66,
-        heightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp,
-        indicatorHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp,
+        heightDp = AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp,
+        indicatorHeightDp = AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp,
         labelFontSizeSp = resolveAppSegmentedLabelFontSizeSp(
             optionCount = itemCount,
             longestLabelLength = longestLabelLength,
         ).toInt(),
         liquidGlassEffectsEnabled = hasExternalBackdrop,
+        // Keep bottom-bar press refraction (same KernelSu indicator path).
         tapPressRefractionEnabled = true,
     )
 }

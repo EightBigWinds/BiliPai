@@ -235,9 +235,13 @@ internal fun resolveLiveInteractionSegmentedControlSpec(
     return LiveInteractionSegmentedControlSpec(
         horizontalPaddingDp = compactChrome.chipHorizontalPaddingDp,
         verticalPaddingDp = compactChrome.standardGapDp,
-        // Exact floating bottom-bar liquid dock.
-        heightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp,
-        indicatorHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp,
+        // Flexible in-content geometry; bottom-bar indicator rendering path unchanged.
+        heightDp = compactChrome.primaryHeightDp.coerceAtMost(
+            AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp + 8
+        ),
+        indicatorHeightDp = compactChrome.compactChipHeightDp.coerceAtLeast(
+            AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp - 4
+        ),
         labelFontSizeSp = 14
     )
 }

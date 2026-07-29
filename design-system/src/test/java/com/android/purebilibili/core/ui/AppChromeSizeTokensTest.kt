@@ -14,9 +14,20 @@ class AppChromeSizeTokensTest {
     }
 
     @Test
-    fun `bottom bar matched segmented tokens match floating dock`() {
-        assertEquals(58, AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp)
-        assertEquals(56, AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp)
+    fun `floating bottom bar and in-content liquid segmented tokens stay distinct`() {
+        assertEquals(58, AppChromeSizeTokens.FloatingBottomBarSegmentedControlHeightDp)
+        assertEquals(56, AppChromeSizeTokens.FloatingBottomBarSegmentedIndicatorHeightDp)
+        assertEquals(40, AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp)
+        assertEquals(32, AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp)
+        // Deprecated aliases point at in-content sizes so embedded chrome stays compact.
+        assertEquals(
+            AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp,
+            AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp
+        )
+        assertEquals(
+            AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp,
+            AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp
+        )
     }
 
     @Test

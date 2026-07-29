@@ -43,8 +43,8 @@ internal fun resolveSpaceMainTabChromeSpec(
     val selectedIndex = tabs.indexOfFirst { it.tab == selectedTab }.coerceAtLeast(0)
     return SpaceSegmentedTabChromeSpec(
         selectedIndex = selectedIndex,
-        heightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp,
-        indicatorHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp,
+        heightDp = AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp,
+        indicatorHeightDp = AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp,
         horizontalPaddingDp = SPACE_SEGMENTED_TAB_HORIZONTAL_PADDING_DP,
         itemWidthDp = null,
         scrollable = false,
@@ -64,8 +64,8 @@ internal fun resolveSpaceContributionTabChromeSpec(
     val scrollable = shouldScrollSpaceContributionTabs(tabs)
     return SpaceSegmentedTabChromeSpec(
         selectedIndex = selectedIndex,
-        heightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp,
-        indicatorHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp,
+        heightDp = AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp,
+        indicatorHeightDp = AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp,
         horizontalPaddingDp = SPACE_SEGMENTED_TAB_HORIZONTAL_PADDING_DP,
         itemWidthDp = resolveSpaceContributionTabItemWidthDp(tabs),
         scrollable = scrollable,
@@ -85,8 +85,8 @@ internal fun resolveSpaceContributionToolbarSpec(
     val compactActions = widthDp < SPACE_CONTRIBUTION_TOOLBAR_COMPACT_WIDTH_DP || tabCount > 2
     val roomy = widthDp >= SPACE_CONTRIBUTION_TOOLBAR_ROOMY_WIDTH_DP && tabCount <= 2
     return SpaceContributionToolbarSpec(
-        tabHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp,
-        tabIndicatorHeightDp = AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp,
+        tabHeightDp = AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp,
+        tabIndicatorHeightDp = AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp,
         collapsedTabWidthDp = resolveSpaceContributionCollapsedTabWidthDp(selectedTitle, widthDp),
         expandedTabRailHeightDp = 40,
         horizontalPaddingDp = 12,

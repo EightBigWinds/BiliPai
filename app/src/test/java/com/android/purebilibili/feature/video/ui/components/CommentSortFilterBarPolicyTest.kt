@@ -9,12 +9,12 @@ import kotlin.test.assertTrue
 class CommentSortFilterBarPolicyTest {
 
     @Test
-    fun `sort segmented control matches floating bottom bar dock sizes`() {
+    fun `sort segmented control uses flexible in-content dock sizes`() {
         val spec = resolveCommentSortSegmentedControlSpec(itemCount = 2)
 
         assertEquals(66, spec.itemWidthDp)
-        assertEquals(58, spec.heightDp)
-        assertEquals(56, spec.indicatorHeightDp)
+        assertEquals(40, spec.heightDp)
+        assertEquals(32, spec.indicatorHeightDp)
         assertTrue(
             hasCommentSortIndicatorScaleClearance(
                 containerHeightDp = spec.heightDp,

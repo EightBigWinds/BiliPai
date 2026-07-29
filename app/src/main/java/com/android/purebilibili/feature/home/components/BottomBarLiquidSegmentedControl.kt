@@ -310,8 +310,11 @@ internal fun resolveSharedLiquidIndicatorPanelOffsetPx(
 }
 
 /**
- * Lens/refraction progress for shared liquid indicators.
- * Bottom bar keeps a drag floor so slow swipes still show glass stretch instead of fading out.
+ * Lens/refraction progress for shared liquid indicators that must track a pager/fraction
+ * without an active finger press (top tabs while paging).
+ *
+ * The floating bottom bar itself uses **press only** for indicator lens — see
+ * [resolveBottomBarIndicatorLensProgress]. Prefer that for 1:1 bottom-bar rendering.
  */
 internal fun resolveSharedLiquidIndicatorLensProgress(
     pressProgress: Float,
@@ -321,6 +324,14 @@ internal fun resolveSharedLiquidIndicatorLensProgress(
     val dragFloor = if (isDragging) 0.6f else 0f
     return maxOf(pressProgress, motionProgress, dragFloor).coerceIn(0f, 1f)
 }
+
+/**
+ * Exact bottom-bar indicator lens progress: press-driven only
+ * (KernelSuAlignedBottomBar → resolveBottomBarBackdropPresetIndicatorLens(press)).
+ */
+internal fun resolveBottomBarIndicatorLensProgress(
+    pressProgress: Float
+): Float = pressProgress.coerceIn(0f, 1f)
 
 /**
  * When glass is active and the capsule is moving, visible labels stay neutral and the
@@ -568,14 +579,15 @@ fun BottomBarLiquidSegmentedControl(
         )
         // Match bottom bar: 88/56 drag-scale + velocity stretch (no compound scaleX/Y).
         val indicatorLayerScaleProgress = maxOf(indicatorDragScaleProgress, effectivePressProgress)
-        val lensProgress = resolveSharedLiquidIndicatorLensProgress(
-            pressProgress = effectivePressProgress,
-            motionProgress = motionProgress,
-            isDragging = dragState.isDragging
+        // Bottom-bar indicator lens is press-only (not motion floor / shared pager helper).
+        val indicatorLensProgress = resolveBottomBarIndicatorLensProgress(
+            pressProgress = effectivePressProgress
         )
+        // Color path may still follow motion so theme tint follows the capsule while settling.
+        val glassColorProgress = maxOf(indicatorLensProgress, motionProgress)
         val useGlassColorPath = resolveSharedLiquidIndicatorUseGlassColorPath(
             liquidGlassEnabled = liquidGlassEnabled,
-            lensProgress = lensProgress
+            lensProgress = glassColorProgress
         )
         val rawPanelOffsetPx by remember(density, dockWidthPx) {
             derivedStateOf {
@@ -605,23 +617,22 @@ fun BottomBarLiquidSegmentedControl(
         val hasMiuixExternalBackdrop = miuixBackdrop != null
         val containerBackdrop = backdrop
         // Capture lens: bottom bar uses full ExtraLarge (24dp) whenever glass is on.
-        // Keep progress helpers for highlight ramps; effects use the fixed bottom-bar constant.
         val captureLensProgress = resolveSharedLiquidIndicatorCaptureLensProgress(
-            lensProgress = lensProgress,
+            lensProgress = maxOf(indicatorLensProgress, motionProgress),
             isDragging = dragState.isDragging
         )
         val captureLensSpec = resolveBottomBarBackdropPresetCaptureLens(
             progress = if (shouldUseBottomBarCaptureLens(liquidGlassEnabled)) 1f else captureLensProgress
         )
-        // Indicator capsule lens: same press/motion floor as shared bottom-bar path.
+        // Indicator capsule lens: exact bottom-bar press progress.
         val indicatorLensSpec = resolveBottomBarBackdropPresetIndicatorLens(
-            progress = lensProgress
+            progress = indicatorLensProgress
         )
         val captureHighlightAlpha = resolveBottomBarLiquidGlassHighlightAlpha(captureLensProgress)
         val indicatorGlowAlpha = resolveBottomBarIndicatorGlowAlpha(
             glassEnabled = liquidGlassEnabled,
             pressProgress = effectivePressProgress,
-            motionProgress = lensProgress
+            motionProgress = glassColorProgress
         )
         val indicatorIdleSurfaceColor = indicatorIdleSurfaceColorOverride
             ?: resolveBottomBarIdleIndicatorSurfaceColor(
@@ -814,7 +825,8 @@ fun BottomBarLiquidSegmentedControl(
                 contentBackdrop = tabsMiuixBackdrop,
                 backdrop = miuixBackdrop,
                 indicatorLensSpec = indicatorLensSpec,
-                effectivePressProgress = lensProgress,
+                // Bottom bar: surface fade / highlight / inner shadow driven by press.
+                effectivePressProgress = indicatorLensProgress,
                 indicatorIdleSurfaceColor = indicatorIdleSurfaceColor,
                 glassEnabled = liquidGlassEnabled,
                 motionProgress = motionProgress,
@@ -839,7 +851,7 @@ fun BottomBarLiquidSegmentedControl(
                 contentBackdrop = tabsBackdrop,
                 backdrop = backdrop,
                 indicatorLensSpec = indicatorLensSpec,
-                effectivePressProgress = lensProgress,
+                effectivePressProgress = indicatorLensProgress,
                 indicatorIdleSurfaceColor = indicatorIdleSurfaceColor,
                 glassEnabled = liquidGlassEnabled,
                 motionProgress = motionProgress,

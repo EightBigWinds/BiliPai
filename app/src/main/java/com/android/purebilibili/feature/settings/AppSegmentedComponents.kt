@@ -25,8 +25,7 @@ import com.android.purebilibili.core.ui.components.resolveAppLiquidSegmentedCont
 import com.android.purebilibili.core.ui.components.resolveAppSegmentedChrome
 import com.android.purebilibili.core.ui.components.resolveAppSegmentedSelectionIndex
 import com.android.purebilibili.core.ui.rememberAppSegmentedControlPolicy
-import com.android.purebilibili.feature.home.components.BOTTOM_BAR_LIQUID_SEGMENTED_CONTROL_HEIGHT_DP
-import com.android.purebilibili.feature.home.components.BOTTOM_BAR_LIQUID_SEGMENTED_CONTROL_INDICATOR_HEIGHT_DP
+import com.android.purebilibili.core.ui.AppChromeSizeTokens
 import com.android.purebilibili.feature.home.components.BottomBarLiquidSegmentedControl
 import com.kyant.backdrop.Backdrop
 
@@ -79,8 +78,9 @@ internal fun <T> AppSegmentedControl(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     forceLiquidIndicator: Boolean = false,
-    height: Dp = BOTTOM_BAR_LIQUID_SEGMENTED_CONTROL_HEIGHT_DP.dp,
-    indicatorHeight: Dp = BOTTOM_BAR_LIQUID_SEGMENTED_CONTROL_INDICATOR_HEIGHT_DP.dp,
+    // In-content flexible defaults; rendering still follows bottom-bar indicator path.
+    height: Dp = AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp.dp,
+    indicatorHeight: Dp = AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp.dp,
     labelFontSize: TextUnit = 14.sp,
     backdrop: Backdrop? = null,
     tapPressRefractionEnabled: Boolean = true,
@@ -151,17 +151,19 @@ private fun <T> AppLiquidSegmentedControlHost(
         hasExternalBackdrop = backdrop != null,
         longestLabelLength = longestLabelLength,
     )
-    val usesDefaultBottomBarSizing =
-        height == BOTTOM_BAR_LIQUID_SEGMENTED_CONTROL_HEIGHT_DP.dp &&
-            indicatorHeight == BOTTOM_BAR_LIQUID_SEGMENTED_CONTROL_INDICATOR_HEIGHT_DP.dp &&
+    // Defaults use in-content sizes; when caller still passes them (or pure defaults),
+    // apply policy-resolved geometry + keep bottom-bar press refraction.
+    val usesDefaultInContentSizing =
+        height == AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp.dp &&
+            indicatorHeight == AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp.dp &&
             labelFontSize == 14.sp
-    val resolvedHeight = if (usesDefaultBottomBarSizing) spec.heightDp.dp else height
+    val resolvedHeight = if (usesDefaultInContentSizing) spec.heightDp.dp else height
     val resolvedIndicatorHeight =
-        if (usesDefaultBottomBarSizing) spec.indicatorHeightDp.dp else indicatorHeight
+        if (usesDefaultInContentSizing) spec.indicatorHeightDp.dp else indicatorHeight
     val resolvedLabelFontSize =
-        if (usesDefaultBottomBarSizing) spec.labelFontSizeSp.sp else labelFontSize
+        if (usesDefaultInContentSizing) spec.labelFontSizeSp.sp else labelFontSize
     val resolvedTapPressRefractionEnabled =
-        if (usesDefaultBottomBarSizing) spec.tapPressRefractionEnabled else tapPressRefractionEnabled
+        if (usesDefaultInContentSizing) spec.tapPressRefractionEnabled else tapPressRefractionEnabled
 
     BottomBarLiquidSegmentedControl(
         items = options.map { it.label },

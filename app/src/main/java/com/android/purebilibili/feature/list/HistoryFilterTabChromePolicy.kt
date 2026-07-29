@@ -2,11 +2,11 @@ package com.android.purebilibili.feature.list
 
 import com.android.purebilibili.core.store.HomeSettings
 import com.android.purebilibili.core.ui.AppTopChromePolicy
-// Exact floating bottom-bar liquid dock sizes.
+// Full-width history chrome can use a slightly taller in-content dock; not the 58dp nav bar.
 internal const val HISTORY_FILTER_LIQUID_DOCK_HEIGHT_DP =
-    com.android.purebilibili.core.ui.AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp
+    com.android.purebilibili.core.ui.AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp + 4
 internal const val HISTORY_FILTER_LIQUID_DOCK_INDICATOR_HEIGHT_DP =
-    com.android.purebilibili.core.ui.AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp
+    com.android.purebilibili.core.ui.AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp + 4
 internal const val HISTORY_FILTER_LIQUID_DOCK_LABEL_FONT_SIZE_SP = 15
 
 internal data class HistoryFilterTabChromeSpec(

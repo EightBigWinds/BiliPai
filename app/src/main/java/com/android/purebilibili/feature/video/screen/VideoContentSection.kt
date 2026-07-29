@@ -141,11 +141,11 @@ internal fun hasVideoContentTabBarIndicatorScaleClearance(
         containerHeightDp >= indicatorHeightDp
 }
 
-// Exact floating bottom-bar liquid dock (no compact self-tuned variant).
+// In-content geometry (flexible). Rendering still uses bottom-bar indicator path.
 internal const val VIDEO_CONTENT_LIQUID_DOCK_HEIGHT_DP =
-    com.android.purebilibili.core.ui.AppChromeSizeTokens.BottomBarMatchedSegmentedControlHeightDp
+    com.android.purebilibili.core.ui.AppChromeSizeTokens.InContentLiquidSegmentedControlHeightDp
 internal const val VIDEO_CONTENT_LIQUID_DOCK_INDICATOR_HEIGHT_DP =
-    com.android.purebilibili.core.ui.AppChromeSizeTokens.BottomBarMatchedSegmentedIndicatorHeightDp
+    com.android.purebilibili.core.ui.AppChromeSizeTokens.InContentLiquidSegmentedIndicatorHeightDp
 internal const val VIDEO_CONTENT_LIQUID_DOCK_LABEL_FONT_SIZE_SP = 14
 
 internal data class VideoContentTabBarLiquidChromeSpec(

@@ -21,8 +21,8 @@ class AppSegmentedControlPolicyTest {
         )
 
         assertEquals(66, policy.itemWidthDp)
-        assertEquals(58, policy.heightDp)
-        assertEquals(56, policy.indicatorHeightDp)
+        assertEquals(40, policy.heightDp)
+        assertEquals(32, policy.indicatorHeightDp)
         assertEquals(15, policy.labelFontSizeSp)
         assertFalse(policy.liquidGlassEffectsEnabled)
         assertTrue(policy.tapPressRefractionEnabled)
