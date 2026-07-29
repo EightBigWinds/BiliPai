@@ -26,8 +26,10 @@ class TopTabRefractionPolicyTest {
         assertTrue(source.contains("val topTabContentBackdrop = rememberLayerBackdrop()"))
         assertTrue(source.contains("val effectiveTopTabIndicatorContentBackdrop: Backdrop?"))
         assertTrue(source.contains("rememberCombinedBackdrop(backdrop, topTabContentBackdrop)"))
-        assertTrue(source.contains("contentBackdrop = topTabContentBackdrop"))
-        assertTrue(source.contains("backdrop = effectiveTopTabIndicatorContentBackdrop ?: backdrop"))
+        // Bottom-bar parity: CombinedBackdrop is the contentBackdrop sample source.
+        assertTrue(source.contains("val topTabIndicatorSampleBackdrop ="))
+        assertTrue(source.contains("contentBackdrop = topTabIndicatorSampleBackdrop"))
+        assertTrue(source.contains("backdrop = backdrop"))
         assertTrue(source.contains("val glassLayersAlwaysOn = shouldUseLiquidGlassIndicator"))
         assertTrue(source.contains("resolveTopTabIndicatorBackdropPolicy("))
         assertTrue(source.contains("isDragging = topTabShouldStretchIndicator"))

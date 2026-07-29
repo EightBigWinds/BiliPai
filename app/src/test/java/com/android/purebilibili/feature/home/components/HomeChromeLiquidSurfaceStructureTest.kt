@@ -85,7 +85,10 @@ class HomeChromeLiquidSurfaceStructureTest {
                 topHeaderSource.contains("resolveSharedBottomBarCapsuleShape()") &&
                 topTabChrome.readText().contains("useBottomBarMatchedSurface: Boolean = false") &&
                 topTabChrome.readText().contains("liquidGlassPreset: BottomBarLiquidGlassPreset") &&
-                topTabChrome.readText().contains(".homeTopBottomBarMatchedSurface(")
+                topTabChrome.readText().contains(".homeTopBottomBarMatchedSurface(") &&
+                // Matched dock must consume feed scroll like the floating bottom bar shell.
+                topTabChrome.readText().contains("isScrolling = isScrolling") &&
+                topHeaderSource.contains("isScrolling = topChromeMotionPolicy.isScrolling")
         )
         assertTrue(
             "home top avatar, search content and unread badge should live in extracted top-control components",
@@ -190,7 +193,9 @@ class HomeChromeLiquidSurfaceStructureTest {
                 topBarSource.contains("val glassLayersAlwaysOn = shouldUseLiquidGlassIndicator") &&
                 topBarSource.contains("resolveTopTabIndicatorBackdropPolicy(") &&
                 topBarSource.contains("allowIdleGlassEffect = false") &&
-                topBarSource.contains("contentBackdrop = topTabContentBackdrop") &&
+                // Combined(page, tabs) must be the indicator contentBackdrop (bottom-bar topology).
+                topBarSource.contains("val topTabIndicatorSampleBackdrop =") &&
+                topBarSource.contains("contentBackdrop = topTabIndicatorSampleBackdrop") &&
                 topBarSource.contains("topTabListScrollOffsetPx") &&
                 topBarSource.contains("One shared shift for export") &&
                 topBarSource.contains("indicatorPanelOffsetPx = 0f") &&

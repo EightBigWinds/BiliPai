@@ -95,6 +95,7 @@ report.md
 docs/*
 !docs/GOOGLE_CAST_PLUGIN.md
 !docs/DLNA_CAST_PLUGIN.md
+!docs/liquid-glass-reuse-bottom-bar-parity.md
 !docs/images/
 !docs/images/screenshot*.png
 !docs/wiki/

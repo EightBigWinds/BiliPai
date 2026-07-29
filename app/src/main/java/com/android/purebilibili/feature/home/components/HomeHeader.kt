@@ -2424,7 +2424,9 @@ fun HomeHeader(
                                                     liquidGlassPreset = bottomBarLiquidGlassPreset,
                                                     motionTier = motionTier,
                                                     isTransitionRunning = topChromeMotionPolicy.isTransitionRunning,
-                                                    forceLowBlurBudget = forceLowBlurBudget
+                                                    forceLowBlurBudget = forceLowBlurBudget,
+                                                    // 1:1 with bottom bar dock scroll material.
+                                                    isScrolling = topChromeMotionPolicy.isScrolling
                                                 )
                                             } else {
                                                 Modifier.homeTopChromeSurface(
@@ -2538,7 +2540,9 @@ fun HomeHeader(
                                                             motionTier = motionTier,
                                                             isTransitionRunning = topChromeMotionPolicy.isTransitionRunning,
                                                             forceLowBlurBudget = forceLowBlurBudget,
-                                                            drawShellLens = false
+                                                            drawShellLens = false,
+                                                            // 1:1 with bottom bar dock scroll material.
+                                                            isScrolling = topChromeMotionPolicy.isScrolling
                                                         )
                                                 } else {
                                                     Modifier

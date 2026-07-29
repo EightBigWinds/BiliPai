@@ -27,6 +27,8 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import com.android.purebilibili.core.ui.motion.AppMotionEasing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -742,7 +744,7 @@ internal fun Modifier.homeTopBottomBarMatchedSurface(
     forceLowBlurBudget: Boolean,
     drawShellLens: Boolean = true,
     isScrolling: Boolean = false,
-    materialScrollProgress: Float = if (isScrolling) 1f else 0f
+    materialScrollProgress: Float? = null
 ): Modifier = composed {
     val isGlassEnabled = renderMode == HomeTopChromeRenderMode.LIQUID_GLASS_BACKDROP ||
         renderMode == HomeTopChromeRenderMode.LIQUID_GLASS_HAZE
@@ -762,6 +764,18 @@ internal fun Modifier.homeTopBottomBarMatchedSurface(
         blurIntensity = blurIntensity,
         liquidGlassPreset = liquidGlassPreset
     )
+    // Same scroll material ramp as KernelSuAlignedBottomBar (140ms in / 420ms out).
+    val animatedScrollProgress by animateFloatAsState(
+        targetValue = if (isScrolling) 1f else 0f,
+        animationSpec = tween(
+            durationMillis = resolveBottomBarMaterialScrollAnimationDurationMillis(
+                isScrolling = isScrolling
+            ),
+            easing = AppMotionEasing.Continuity
+        ),
+        label = "topDockMaterialScrollProgress"
+    )
+    val resolvedScrollProgress = materialScrollProgress ?: animatedScrollProgress
     this.kernelSuFloatingDockSurface(
         shape = shape,
         backdrop = backdrop,
@@ -776,7 +790,7 @@ internal fun Modifier.homeTopBottomBarMatchedSurface(
         forceLowBlurBudget = forceLowBlurBudget,
         liquidGlassPreset = liquidGlassPreset,
         isScrolling = isScrolling,
-        materialScrollProgress = materialScrollProgress
+        materialScrollProgress = resolvedScrollProgress
     )
 }
 
@@ -1492,6 +1506,11 @@ private fun LightweightHomeTopTabs(
                         .zIndex(1f)
                         .graphicsLayer { clip = false }
                 ) {
+                    // Match bottom bar: CombinedBackdrop(page, tabs) is the indicator's content source.
+                    // KernelSuBottomBarIndicatorLayer prefers contentBackdrop when the preset uses
+                    // the "combined" topology, so Combined must be passed as contentBackdrop.
+                    val topTabIndicatorSampleBackdrop =
+                        effectiveTopTabIndicatorContentBackdrop ?: topTabContentBackdrop
                     if (shouldUseMovingIosCapsule) {
                         val capsuleShape = resolveSharedBottomBarCapsuleShape()
                         val indicatorWidth = resolveTopTabDockIndicatorWidthDp(
@@ -1513,9 +1532,8 @@ private fun LightweightHomeTopTabs(
                             indicatorHeight = dockIndicatorHeight,
                             shellShape = capsuleShape,
                             liquidGlassPreset = BottomBarLiquidGlassPreset.BILIPAI_TUNED,
-                            // Prefer export capture so capsule shows theme-tinted glyphs.
-                            contentBackdrop = topTabContentBackdrop,
-                            backdrop = effectiveTopTabIndicatorContentBackdrop ?: backdrop,
+                            contentBackdrop = topTabIndicatorSampleBackdrop,
+                            backdrop = backdrop,
                             indicatorLensSpec = topTabIndicatorLensSpec,
                             effectivePressProgress = topTabLensProgress,
                             indicatorIdleSurfaceColor = resolveIosTopTabCapsuleContainerColor(
@@ -1544,9 +1562,8 @@ private fun LightweightHomeTopTabs(
                             indicatorHeight = dockIndicatorHeight,
                             shellShape = resolveSharedBottomBarCapsuleShape(),
                             liquidGlassPreset = BottomBarLiquidGlassPreset.BILIPAI_TUNED,
-                            // Prefer export capture so capsule shows theme-tinted glyphs.
-                            contentBackdrop = topTabContentBackdrop,
-                            backdrop = effectiveTopTabIndicatorContentBackdrop ?: backdrop,
+                            contentBackdrop = topTabIndicatorSampleBackdrop,
+                            backdrop = backdrop,
                             indicatorLensSpec = topTabIndicatorLensSpec,
                             effectivePressProgress = topTabLensProgress,
                             indicatorIdleSurfaceColor = resolveAndroidNativeIdleIndicatorSurfaceColor(
@@ -1574,9 +1591,8 @@ private fun LightweightHomeTopTabs(
                             indicatorHeight = dockIndicatorHeight,
                             shellShape = capsuleShape,
                             liquidGlassPreset = BottomBarLiquidGlassPreset.BILIPAI_TUNED,
-                            // Prefer export capture so capsule shows theme-tinted glyphs.
-                            contentBackdrop = topTabContentBackdrop,
-                            backdrop = effectiveTopTabIndicatorContentBackdrop ?: backdrop,
+                            contentBackdrop = topTabIndicatorSampleBackdrop,
+                            backdrop = backdrop,
                             indicatorLensSpec = topTabIndicatorLensSpec,
                             effectivePressProgress = topTabLensProgress,
                             indicatorIdleSurfaceColor = if (isDarkTheme) {

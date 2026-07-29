@@ -604,15 +604,16 @@ fun BottomBarLiquidSegmentedControl(
         val hasExternalBackdrop = backdrop != null
         val hasMiuixExternalBackdrop = miuixBackdrop != null
         val containerBackdrop = backdrop
+        // Capture lens: bottom bar uses full ExtraLarge (24dp) whenever glass is on.
+        // Keep progress helpers for highlight ramps; effects use the fixed bottom-bar constant.
         val captureLensProgress = resolveSharedLiquidIndicatorCaptureLensProgress(
             lensProgress = lensProgress,
             isDragging = dragState.isDragging
         )
-        // Full 24dp capture lens while interacting — same constant strength as bottom bar capture.
         val captureLensSpec = resolveBottomBarBackdropPresetCaptureLens(
-            progress = captureLensProgress
+            progress = if (shouldUseBottomBarCaptureLens(liquidGlassEnabled)) 1f else captureLensProgress
         )
-        // Indicator capsule lens follows swipe, not only finger-down press.
+        // Indicator capsule lens: same press/motion floor as shared bottom-bar path.
         val indicatorLensSpec = resolveBottomBarBackdropPresetIndicatorLens(
             progress = lensProgress
         )
@@ -647,7 +648,10 @@ fun BottomBarLiquidSegmentedControl(
                             motionTier = MotionTier.Normal,
                             isTransitionRunning = false,
                             forceLowBlurBudget = false,
-                            liquidGlassPreset = homeSettings.bottomBarLiquidGlassPreset
+                            liquidGlassPreset = homeSettings.bottomBarLiquidGlassPreset,
+                            // 1:1 with KernelSuAlignedBottomBar shell press/motion bump.
+                            materialMotionProgress = motionProgress,
+                            materialPressProgress = effectivePressProgress
                         )
                     } else {
                         this.kernelSuFloatingDockSurface(
@@ -661,7 +665,10 @@ fun BottomBarLiquidSegmentedControl(
                             motionTier = MotionTier.Normal,
                             isTransitionRunning = false,
                             forceLowBlurBudget = false,
-                            liquidGlassPreset = homeSettings.bottomBarLiquidGlassPreset
+                            liquidGlassPreset = homeSettings.bottomBarLiquidGlassPreset,
+                            // 1:1 with KernelSuAlignedBottomBar shell press/motion bump.
+                            materialMotionProgress = motionProgress,
+                            materialPressProgress = effectivePressProgress
                         )
                     }
                 }
@@ -712,14 +719,15 @@ fun BottomBarLiquidSegmentedControl(
                                         backdrop = miuixBackdrop,
                                         shape = { containerShape },
                                         effects = {
-                                            miuixVibrancy()
+                                            // Match KernelSuAlignedBottomBar capture: fixed ExtraLarge lens.
+                                            if (shouldUseBottomBarCaptureLens(liquidGlassEnabled)) {
+                                                miuixVibrancy()
+                                            }
                                             miuixBlur(AppSpacingTokens.ExtraSmall.toPx(), AppSpacingTokens.ExtraSmall.toPx())
-                                            if (captureLensProgress > 0.001f) {
+                                            if (shouldUseBottomBarCaptureLens(liquidGlassEnabled)) {
                                                 miuixLens(
                                                     refractionHeight = captureLensSpec.refractionHeightDp.dp.toPx(),
-                                                    refractionAmount = captureLensSpec.refractionAmountDp.dp.toPx(),
-                                                    depthEffect = true,
-                                                    chromaticAberration = 0.5f
+                                                    refractionAmount = captureLensSpec.refractionAmountDp.dp.toPx()
                                                 )
                                             }
                                         },
@@ -743,9 +751,12 @@ fun BottomBarLiquidSegmentedControl(
                                         backdrop = containerBackdrop,
                                         shape = { containerShape },
                                         effects = {
-                                            vibrancy()
+                                            // Match bottom-bar capture strength (fixed 24dp when glass on).
+                                            if (shouldUseBottomBarCaptureLens(liquidGlassEnabled)) {
+                                                vibrancy()
+                                            }
                                             blur(androidNativeTuning.shellBlurRadiusDp.dp.toPx())
-                                            if (captureLensProgress > 0.001f) {
+                                            if (shouldUseBottomBarCaptureLens(liquidGlassEnabled)) {
                                                 lens(
                                                     refractionHeight = captureLensSpec.refractionHeightDp.dp.toPx(),
                                                     refractionAmount = captureLensSpec.refractionAmountDp.dp.toPx(),

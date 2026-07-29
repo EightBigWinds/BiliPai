@@ -198,7 +198,9 @@ internal fun HomeTopTabChrome(
                                     motionTier = motionTier,
                                     isTransitionRunning = isTransitionRunning,
                                     forceLowBlurBudget = forceLowBlurBudget,
-                                    drawShellLens = drawMatchedShellLens
+                                    drawShellLens = drawMatchedShellLens,
+                                    // 1:1 with bottom bar: feed scroll drives shell material ramp.
+                                    isScrolling = isScrolling
                                 )
                             } else {
                                 Modifier.homeTopChromeSurface(
